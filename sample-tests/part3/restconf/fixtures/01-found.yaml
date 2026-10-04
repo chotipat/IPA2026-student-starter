@@ -1,0 +1,16 @@
+router: 10.0.29.101
+interface_name: Loopback123
+
+http:
+  status_code: 200
+  json:
+    ietf-interfaces:interface:
+      name: Loopback123
+      description: IPA2026-66070123
+      type: iana-if-type:softwareLoopback
+      enabled: true
+      ietf-ip:ipv4:
+        address:
+          - ip: 172.23.123.1
+            netmask: 255.255.255.255
+      ietf-ip:ipv6: {}

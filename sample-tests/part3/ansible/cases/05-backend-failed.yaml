@@ -1,0 +1,6 @@
+target: apply
+fixture: 05-backend-failed.yaml
+
+expected:
+  status: error
+  result: backend_failed

@@ -1,0 +1,8 @@
+target: handler
+attachment: null
+expected:
+  status: error
+  result: no_yaml
+mentioned_people:
+- TEST-BOT
+bot_person_id: TEST-BOT

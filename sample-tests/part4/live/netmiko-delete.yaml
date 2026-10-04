@@ -1,0 +1,7 @@
+version: 1
+router: 10.0.29.101
+method: netmiko-textfsm
+action: delete
+desired:
+  interface:
+    name: Loopback123

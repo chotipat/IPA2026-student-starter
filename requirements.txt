@@ -1,0 +1,9 @@
+PyYAML==6.0.3
+pytest==9.1.1
+ncclient==0.7.1
+paramiko==4.0.0
+ansible==14.4.0
+netmiko==4.8.0
+textfsm==2.1.0
+ntc-templates==9.3.0
+requests==2.34.2

@@ -1,0 +1,13 @@
+fixture: 03-update-multiple-fields.yaml
+
+expected:
+  status: ok
+  result: planned
+  operation: update
+  changes:
+    ipv4:
+      from: 172.23.200.1/32
+      to: 172.23.123.1/32
+    admin_state:
+      from: down
+      to: up

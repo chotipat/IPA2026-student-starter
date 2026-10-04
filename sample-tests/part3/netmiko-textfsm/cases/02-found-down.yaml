@@ -1,0 +1,9 @@
+fixture: 02-found-down.yaml
+expected:
+  status: ok
+  result: found
+  interface:
+    name: Loopback123
+    ipv4: 172.23.123.1/32
+    description: IPA2026-66070123
+    admin_state: down

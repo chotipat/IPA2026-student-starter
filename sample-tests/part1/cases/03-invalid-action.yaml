@@ -1,0 +1,6 @@
+target: core
+request: 03-invalid-action.yaml
+
+expected:
+  status: error
+  result: invalid_action

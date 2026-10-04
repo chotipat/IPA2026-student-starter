@@ -1,0 +1,6 @@
+target: core
+request: 01-valid.yaml
+
+expected:
+  status: ok
+  result: accepted

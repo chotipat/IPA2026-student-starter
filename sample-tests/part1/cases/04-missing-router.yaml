@@ -1,0 +1,6 @@
+target: core
+request: 04-missing-router.yaml
+
+expected:
+  status: error
+  result: missing_router

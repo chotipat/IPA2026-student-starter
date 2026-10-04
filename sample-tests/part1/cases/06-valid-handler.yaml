@@ -1,0 +1,8 @@
+target: handler
+attachment: 01-valid.yaml
+expected:
+  status: ok
+  result: accepted
+mentioned_people:
+- TEST-BOT
+bot_person_id: TEST-BOT

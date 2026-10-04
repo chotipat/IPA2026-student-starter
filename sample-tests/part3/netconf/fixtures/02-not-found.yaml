@@ -1,0 +1,8 @@
+router: 10.0.29.101
+interface_name: Loopback999
+
+netconf:
+  xml: |
+    <data xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+      <interfaces xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces"/>
+    </data>

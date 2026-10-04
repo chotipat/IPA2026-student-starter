@@ -1,0 +1,7 @@
+target: handler
+attachment: 01-valid.yaml
+expected:
+  status: error
+  result: missing_bot_mention
+mentioned_people: []
+bot_person_id: TEST-BOT

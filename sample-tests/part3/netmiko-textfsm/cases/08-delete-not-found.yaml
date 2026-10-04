@@ -1,0 +1,7 @@
+target: delete
+fixture: 08-delete-not-found.yaml
+
+expected:
+  status: ok
+  result: not_found
+  interface: null

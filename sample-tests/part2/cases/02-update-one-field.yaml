@@ -1,0 +1,10 @@
+fixture: 02-update-one-field.yaml
+
+expected:
+  status: ok
+  result: planned
+  operation: update
+  changes:
+    description:
+      from: OLD-DESCRIPTION
+      to: IPA2026-66070123

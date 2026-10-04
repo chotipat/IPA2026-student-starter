@@ -1,0 +1,6 @@
+target: apply
+fixture: 06-apply-update.yaml
+
+expected:
+  status: ok
+  result: applied

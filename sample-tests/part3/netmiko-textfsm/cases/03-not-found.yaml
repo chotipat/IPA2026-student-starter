@@ -1,0 +1,5 @@
+fixture: 03-not-found.yaml
+expected:
+  status: ok
+  result: not_found
+  interface: null

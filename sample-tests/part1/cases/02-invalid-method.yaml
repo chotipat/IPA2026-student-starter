@@ -1,0 +1,6 @@
+target: core
+request: 02-invalid-method.yaml
+
+expected:
+  status: error
+  result: invalid_method

@@ -1,0 +1,7 @@
+fixture: 04-no-change.yaml
+
+expected:
+  status: ok
+  result: planned
+  operation: no_change
+  changes: {}

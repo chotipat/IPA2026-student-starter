@@ -1,0 +1,6 @@
+target: apply
+fixture: 05-apply-create.yaml
+
+expected:
+  status: ok
+  result: applied

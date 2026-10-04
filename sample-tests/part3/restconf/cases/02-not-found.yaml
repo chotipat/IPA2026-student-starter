@@ -1,0 +1,7 @@
+target: status
+fixture: 02-not-found.yaml
+
+expected:
+  status: ok
+  result: not_found
+  interface: null

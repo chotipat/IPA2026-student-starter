@@ -1,0 +1,16 @@
+router: 10.0.29.101
+interface_name: Loopback123
+netmiko:
+  ip_info:
+    - interface: Loopback123
+      link_status: administratively down
+      protocol_status: down
+      ip_address:
+        - 172.23.123.1
+      prefix_length:
+        - "32"
+  descriptions:
+    - port: Lo123
+      status: admin down
+      protocol: down
+      description: IPA2026-66070123

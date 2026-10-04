@@ -1,0 +1,6 @@
+target: core
+request: 09-valid-delete.yaml
+
+expected:
+  status: ok
+  result: accepted

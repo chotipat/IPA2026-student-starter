@@ -1,0 +1,4 @@
+fixture: 04-authentication-failed.yaml
+expected:
+  status: error
+  result: authentication_failed

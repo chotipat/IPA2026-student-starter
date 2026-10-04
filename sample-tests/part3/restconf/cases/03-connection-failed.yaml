@@ -1,0 +1,6 @@
+target: status
+fixture: 03-connection-failed.yaml
+
+expected:
+  status: error
+  result: connection_failed

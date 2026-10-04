@@ -1,0 +1,10 @@
+router: 10.0.29.101
+
+desired:
+  name: Loopback123
+  ipv4: 172.23.123.1/32
+  description: IPA2026-66070123
+  admin_state: down
+
+http:
+  status_code: 204

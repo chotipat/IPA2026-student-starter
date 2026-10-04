@@ -1,0 +1,6 @@
+target: core
+request: 10-delete-missing-interface-name.yaml
+
+expected:
+  status: error
+  result: missing_interface_name

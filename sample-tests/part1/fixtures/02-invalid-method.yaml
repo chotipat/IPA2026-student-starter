@@ -1,0 +1,11 @@
+version: 1
+router: 10.0.29.101
+method: ssh
+action: status
+
+desired:
+  interface:
+    name: Loopback123
+    ipv4: 172.23.123.1/32
+    description: IPA2026-66070123
+    admin_state: up

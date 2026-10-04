@@ -1,0 +1,6 @@
+target: delete
+fixture: 07-delete-existing.yaml
+
+expected:
+  status: ok
+  result: deleted

@@ -1,0 +1,6 @@
+target: apply
+fixture: 07-apply-authentication-failed.yaml
+
+expected:
+  status: error
+  result: authentication_failed

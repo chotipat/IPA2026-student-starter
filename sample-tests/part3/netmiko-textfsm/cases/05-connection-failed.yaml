@@ -1,0 +1,4 @@
+fixture: 05-connection-failed.yaml
+expected:
+  status: error
+  result: connection_failed

@@ -1,0 +1,6 @@
+target: apply
+fixture: 08-apply-connection-failed.yaml
+
+expected:
+  status: error
+  result: connection_failed

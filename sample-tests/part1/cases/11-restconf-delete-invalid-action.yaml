@@ -1,0 +1,6 @@
+target: core
+request: 11-restconf-delete-invalid-action.yaml
+
+expected:
+  status: error
+  result: invalid_action

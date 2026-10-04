@@ -1,0 +1,13 @@
+fixture: 01-create.yaml
+
+expected:
+  status: ok
+  result: planned
+  operation: create
+  changes:
+    ipv4:
+      to: 172.23.123.1/32
+    description:
+      to: IPA2026-66070123
+    admin_state:
+      to: up

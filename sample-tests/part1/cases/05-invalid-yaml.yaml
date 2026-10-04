@@ -1,0 +1,6 @@
+target: core
+request: 05-invalid-yaml.yaml
+
+expected:
+  status: error
+  result: invalid_yaml
