@@ -1,0 +1,24 @@
+services:
+  webhook:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      WEBEX_BOT_TOKEN: ${WEBEX_BOT_TOKEN:-}
+      ROUTER_USER: ${ROUTER_USER:-}
+      ROUTER_PASS: ${ROUTER_PASS:-}
+      WEBHOOK_HOST: 0.0.0.0
+      WEBHOOK_PORT: 8000
+    ports:
+      - "127.0.0.1:${HOST_PORT:-8000}:8000"
+    restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=5).close()"
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s

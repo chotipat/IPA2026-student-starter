@@ -17,9 +17,12 @@ Starter นี้ยังไม่มีคำตอบ จุด `TODO` เป
 | `tests/` | **โปรแกรม Python สำหรับรันทดสอบ** | รันให้ผ่าน **ไม่ควรแก้ tests ที่ให้มา** |
 | `sample-tests/` | ข้อมูลตัวอย่าง: cases, fixtures และ YAML สำหรับลอง Live | อ่านตัวอย่างและเพิ่ม cases/fixtures ของตนได้ |
 | `requirements.txt` | Python packages ที่ต้องติดตั้ง | ใช้ติดตั้ง dependencies |
+| `Dockerfile` | สร้าง image ที่มีโค้ด bot และ Ansible | ใช้เป็นจุดเริ่มต้นและตรวจว่า build ผ่าน |
+| `compose.yaml` | เปิด service `webhook` พร้อม health check | ตั้ง environment ของตนและใช้เปิด bot |
+| `.github/workflows/student-ci.yaml` | รัน public tests และ build image เมื่อ push `main` | ดูผล GitHub Actions ของ commit ล่าสุด |
 | `README.md` | ภาพรวมและลำดับการทำงาน | เริ่มอ่านจากไฟล์นี้ |
 
-Starter **ยังไม่มี** `Dockerfile`, `compose.yaml` และ `.github/workflows/student-ci.yaml` นักศึกษาต้องสร้างสามส่วนนี้เองใน Part 4
+Starter ให้ไฟล์ Docker และ Student CI พื้นฐานมาครบแล้ว นักศึกษาไม่ต้องสร้างสามไฟล์นี้จากศูนย์ แต่ต้องทำโค้ดใน `app/` ให้ใช้งานได้จริง เปิด bot ของตน และปรับการตั้งค่า deployment ให้เข้ากับสภาพแวดล้อมของตน **ห้ามใส่ token หรือรหัสผ่านใน repo**
 
 ## งานแต่ละส่วน
 
@@ -58,15 +61,248 @@ desired:
 | `apply` | ทำให้ interface บน router มีค่าตาม `desired.interface` | **เปลี่ยนจริง** | `applied` |
 | `delete` | ลบ interface ตามชื่อที่ระบุ | **เปลี่ยนจริง** | `deleted`; ถ้าลบซ้ำได้ `not_found` |
 
-ลองใช้ไฟล์ตัวอย่างด้านบนโดยเปลี่ยนเฉพาะ `action` ตามลำดับ:
+## ตัวอย่างทดสอบ bot ของตัวเอง
 
-1. `action: status` — ถ้า interface ยังไม่มี ควรได้ `{"status":"ok","result":"not_found","interface":null}` คำว่า `not_found` ในกรณีนี้ **ไม่ใช่ error**
-2. `action: plan` — ควรได้ `result: planned`, `operation: create` และ `changes` ที่อธิบายค่าที่จะเพิ่ม **router ยังไม่เปลี่ยน**
-3. `action: apply` — ควรได้ `{"status":"ok","result":"applied"}` และ router ถูกเปลี่ยนจริง
-4. ส่ง `status` อีกครั้ง — ควรได้ `result: found` พร้อม `interface` ที่มี IP, description และ admin state ตาม YAML
-5. ส่ง `plan` อีกครั้ง — ควรได้ `operation: no_change` และ `changes: {}` เพราะค่าจริงตรงกับค่าที่ต้องการแล้ว
+ใช้บัญชี Webex ของนักศึกษา @mention **bot ของตัวเองจริง ๆ** และแนบ YAML หนึ่งไฟล์ในข้อความเดียวกัน แต่ละตัวอย่างด้านล่างคือ **ข้อความ Webex คนละครั้ง** ยกเว้นตัวอย่างที่ 1 ซึ่งจงใจไม่แนบไฟล์
 
-สำหรับ `delete` ต้องเปลี่ยน `method` เป็น `netmiko-textfsm` และระบุเพียงชื่อ interface:
+ตัวอย่างสมมติว่า `Loopback66070123` เป็น interface ที่นักศึกษาได้รับอนุญาตให้ใช้บน `10.0.29.101` ก่อนทดลองต้องเปลี่ยน router, interface และ IP เป็นค่าที่ตนได้รับมอบหมาย **ห้ามลบ interface ของผู้อื่น**
+
+### เลือก `method` และ `action` ให้เข้าคู่กัน
+
+`action` บอกว่า **ต้องการทำอะไร** ส่วน `method` บอกว่า **จะใช้วิธีใดคุยกับ router** ไม่ใช่ทุกวิธีจะทำได้ทุกงาน
+
+| `method` | `status` อ่านสถานะ | `plan` วางแผน | `apply` เปลี่ยนจริง | `delete` ลบจริง |
+|---|:---:|:---:|:---:|:---:|
+| `restconf` | ✓ | ✓ | ✓ | — |
+| `netconf` | ✓ | ✓ | ✓ | — |
+| `ansible` | — | — | ✓ | — |
+| `netmiko-textfsm` | ✓ | — | — | ✓ |
+
+ถ้า `method` เป็นค่าที่รู้จัก แต่จับคู่กับ `action` ที่วิธีนั้นไม่รองรับ เช่น `restconf` + `delete` หรือ `ansible` + `status` bot ต้องตอบ:
+
+```json
+{"status":"error","result":"invalid_action"}
+```
+
+ตัวอย่างผลลัพธ์ด้านล่างแสดง key สำคัญ ลำดับ key และช่องว่างใน JSON อาจต่างกัน
+
+### 1. Mention bot แต่ไม่แนบ YAML
+
+**ก่อนส่ง:** ไม่ต้องทราบสถานะ router เพราะคำขอนี้จะหยุดตั้งแต่ขั้นตรวจข้อความ
+
+**ส่ง:** @mention bot ของตัวเอง โดยไม่แนบไฟล์
+
+**bot ควรตอบ:**
+
+```json
+{"status":"error","result":"no_yaml"}
+```
+
+**หลังส่ง:** Router ไม่เปลี่ยน กรณีนี้ยังไม่มี `method` หรือ `action` ให้ตรวจ
+
+### 2. แนบ YAML ที่อ่านไม่ได้
+
+**ก่อนส่ง:** ไม่ต้องทราบสถานะ router
+
+**ส่ง:** @mention bot และแนบไฟล์ที่มีเนื้อหานี้
+
+```yaml
+version: 1
+desired: [interface
+```
+
+**bot ควรตอบ:**
+
+```json
+{"status":"error","result":"invalid_yaml"}
+```
+
+**หลังส่ง:** Router ไม่เปลี่ยน โปรแกรมอ่าน YAML ไม่สำเร็จ จึงยังไม่ไปตรวจ `method` หรือ `action`
+
+### 3. `status`: ตรวจเมื่อ interface ยังไม่มี
+
+**ก่อนส่ง:** `Loopback66070123` ยังไม่มีบน router
+
+**ส่ง:**
+
+```yaml
+version: 1
+router: 10.0.29.101
+method: restconf
+action: status
+desired:
+  interface:
+    name: Loopback66070123
+    ipv4: 172.23.123.1/32
+    description: IPA2026-66070123
+    admin_state: up
+```
+
+**bot ควรตอบ:**
+
+```json
+{"status":"ok","result":"not_found","interface":null}
+```
+
+**หลังส่ง:** Interface ยังไม่มี `restconf` ใช้กับ `status` ได้ และ `status` อ่านค่าอย่างเดียว `not_found` จึงไม่ใช่ error
+
+### 4. `plan`: ดูว่าจะต้องสร้างอะไร
+
+**ก่อนส่ง:** Interface ยังไม่มี ตามตัวอย่างที่ 3
+
+**ส่ง:**
+
+```yaml
+version: 1
+router: 10.0.29.101
+method: restconf
+action: plan
+desired:
+  interface:
+    name: Loopback66070123
+    ipv4: 172.23.123.1/32
+    description: IPA2026-66070123
+    admin_state: up
+```
+
+**bot ควรตอบ:**
+
+```json
+{
+  "status": "ok",
+  "result": "planned",
+  "operation": "create",
+  "changes": {
+    "ipv4": {"to": "172.23.123.1/32"},
+    "description": {"to": "IPA2026-66070123"},
+    "admin_state": {"to": "up"}
+  }
+}
+```
+
+**หลังส่ง:** Interface **ยังไม่มี** `restconf` ใช้กับ `plan` ได้ แต่ `plan` เพียงบอกว่าจะทำอะไร ไม่เปลี่ยน router
+
+### 5. `apply`: สร้าง interface จริง
+
+**ก่อนส่ง:** Interface ยังไม่มี
+
+**ส่ง:**
+
+```yaml
+version: 1
+router: 10.0.29.101
+method: restconf
+action: apply
+desired:
+  interface:
+    name: Loopback66070123
+    ipv4: 172.23.123.1/32
+    description: IPA2026-66070123
+    admin_state: up
+```
+
+**bot ควรตอบ:**
+
+```json
+{"status":"ok","result":"applied"}
+```
+
+**หลังส่ง:** Router ควรมี interface ตาม YAML เพราะ `restconf` ใช้กับ `apply` ได้ และ `apply` เป็นคำสั่งเปลี่ยน router จริง
+
+**นักศึกษาตรวจผลอย่างไร:** ส่ง **ข้อความ Webex ใหม่อีกหนึ่งครั้ง** โดยแนบ YAML `status` ในตัวอย่างที่ 6 bot จะตอบคำขอใหม่นั้นอีกหนึ่งครั้ง ไม่ได้ส่ง `status` อัตโนมัติจากคำขอ `apply`
+
+### 6. `status`: อ่านค่ากลับหลัง `apply`
+
+**ก่อนส่ง:** ตัวอย่างที่ 5 เพิ่งสร้าง interface
+
+**ส่งข้อความใหม่:**
+
+```yaml
+version: 1
+router: 10.0.29.101
+method: restconf
+action: status
+desired:
+  interface:
+    name: Loopback66070123
+    ipv4: 172.23.123.1/32
+    description: IPA2026-66070123
+    admin_state: up
+```
+
+**bot ควรตอบ:**
+
+```json
+{
+  "status": "ok",
+  "result": "found",
+  "interface": {
+    "name": "Loopback66070123",
+    "ipv4": "172.23.123.1/32",
+    "description": "IPA2026-66070123",
+    "admin_state": "up"
+  }
+}
+```
+
+**หลังส่ง:** Router ไม่เปลี่ยน `restconf` ใช้กับ `status` ได้ ให้เทียบค่าที่อ่านกลับมาทั้ง IP, description และ admin state กับ YAML ที่ส่งตอน `apply`
+
+### 7. `plan`: ตรวจว่าค่าตรงกันแล้ว
+
+**ก่อนส่ง:** Interface บน router มีค่าตรงกับ YAML ทุกช่อง
+
+**ส่ง:**
+
+```yaml
+version: 1
+router: 10.0.29.101
+method: restconf
+action: plan
+desired:
+  interface:
+    name: Loopback66070123
+    ipv4: 172.23.123.1/32
+    description: IPA2026-66070123
+    admin_state: up
+```
+
+**bot ควรตอบ:**
+
+```json
+{"status":"ok","result":"planned","operation":"no_change","changes":{}}
+```
+
+**หลังส่ง:** Router ไม่เปลี่ยน `restconf` ใช้กับ `plan` ได้ และ `no_change` หมายถึงค่าปัจจุบันตรงกับค่าที่ต้องการแล้ว
+
+### 8. ใช้ `method` กับ `action` ผิดคู่
+
+**ก่อนส่ง:** Interface ยังมีอยู่ แต่คำขอนี้ต้องถูกปฏิเสธก่อนลบ
+
+**ส่ง:** ตั้งใจใช้ `restconf` + `delete` ซึ่งไม่มีเครื่องหมาย ✓ ในตาราง
+
+```yaml
+version: 1
+router: 10.0.29.101
+method: restconf
+action: delete
+desired:
+  interface:
+    name: Loopback66070123
+```
+
+**bot ควรตอบ:**
+
+```json
+{"status":"error","result":"invalid_action"}
+```
+
+**หลังส่ง:** Interface ต้องยังอยู่ โปรแกรมต้องไม่พยายามลบผ่าน RESTCONF แม้ YAML จะอ่านได้และชื่อ interface ถูกต้อง ถ้าต้องการลบ ให้ใช้ `netmiko-textfsm` ตามตัวอย่างถัดไป
+
+### 9. `delete`: ลบ interface ที่สร้างไว้
+
+**ก่อนส่ง:** `Loopback66070123` ยังอยู่บน router
+
+**ส่ง:**
 
 ```yaml
 version: 1
@@ -78,9 +314,41 @@ desired:
     name: Loopback66070123
 ```
 
-การส่งครั้งแรกควรได้ `{"status":"ok","result":"deleted"}`; ส่งไฟล์เดิมซ้ำควรได้ `{"status":"ok","result":"not_found","interface":null}` ดูรูปแบบและข้อผิดพลาดทั้งหมดใน `specs/desired-state-spec-v1.md` และ `specs/response-spec-v1.md`
+**bot ควรตอบ:**
 
-**ห้าม apply หรือ delete interface ของผู้อื่น** หาก `status` พบ interface ที่ไม่ใช่ของตน ให้หยุดก่อนทำขั้นตอนที่เปลี่ยน router
+```json
+{"status":"ok","result":"deleted"}
+```
+
+**หลังส่ง:** Interface ควรถูกลบ `netmiko-textfsm` ใช้กับ `delete` ได้ และคำขอ `delete` ต้องการเพียงชื่อ interface หากอยากเช็กผล ให้ส่ง **ข้อความ `status` ใหม่** เช่น YAML ในตัวอย่างที่ 3 ซึ่งตอนนี้ควรตอบ `not_found` พร้อม `interface: null`
+
+### 10. `delete` ซ้ำเมื่อ interface ไม่มีแล้ว
+
+**ก่อนส่ง:** Interface ถูกลบไปแล้วในตัวอย่างที่ 9
+
+**ส่ง:**
+
+```yaml
+version: 1
+router: 10.0.29.101
+method: netmiko-textfsm
+action: delete
+desired:
+  interface:
+    name: Loopback66070123
+```
+
+**bot ควรตอบ:**
+
+```json
+{"status":"ok","result":"not_found","interface":null}
+```
+
+**หลังส่ง:** Interface ยังคงไม่มี การลบซ้ำต้องไม่ทำให้ bot ล้ม และต้องไม่ไปลบ interface อื่น
+
+ตัวอย่างเหล่านี้ใช้ตรวจ bot ของตนเองก่อนส่งงาน การตรวจอย่างเป็นทางการเริ่มเมื่อส่ง `grade` ให้ instructor bot หลัง `verify` ผ่าน ระบบจะสุ่มเลือก Live 20 กรณีจากชุดทดสอบที่ใหญ่กว่า 20 กรณี จึงต้องทำตาม spec ไม่ใช่เขียนให้ตอบเฉพาะค่าของตัวอย่าง
+
+**ห้าม apply หรือ delete interface ของผู้อื่น** หาก `status` พบ interface ที่ไม่ใช่ของตน ให้หยุดก่อนทำขั้นตอนที่เปลี่ยน router ดูรูปแบบและข้อผิดพลาดทั้งหมดใน `specs/desired-state-spec-v1.md` และ `specs/response-spec-v1.md`
 
 ## ใช้ `tests/` และ `sample-tests/` อย่างไร
 
@@ -107,7 +375,7 @@ python -m pytest -q tests
 
 1. นำ Starter ไปสร้าง **GitHub repo งานของตนเอง** ทำงานบน branch `main` หาก repo เป็น private ต้องให้ผู้สอนอ่านได้
 2. ทำ Parts 1–4 ตาม spec รัน public tests ระหว่างทำ
-3. สร้าง `Dockerfile`, `compose.yaml` และ `.github/workflows/student-ci.yaml` เอง ให้ Student CI รัน public tests และ build Docker เมื่อ push `main` ไม่ต้อง publish image ไป Docker Hub
+3. ใช้ `Dockerfile`, `compose.yaml` และ `.github/workflows/student-ci.yaml` ที่ให้มา ตรวจว่า public tests และ `docker compose build webhook` ผ่าน แล้วปรับ deployment ของตนตาม spec ไม่ต้อง publish image ไป Docker Hub
 4. สร้าง Webex bot ของตน ตั้ง **ชื่อแสดงเป็นรหัสนักศึกษา 8 หลัก** เพิ่ม bot เข้าห้อง **IPA2026 ก่อนลงทะเบียน** แล้วเปิดโปรแกรม, webhook และ tunnel ให้พร้อมรับข้อความ
 5. ลอง @mention bot ของตนพร้อม YAML หนึ่งไฟล์ ทดลอง `status → plan → apply → status → delete → delete ซ้ำ` บน **interface ที่ตนได้รับมอบหมายเท่านั้น** `plan` ไม่แก้ router; `apply` และ `delete` แก้สถานะจริง ดูตัวอย่าง YAML ใน `sample-tests/part4/live/` และขั้นตอนใน `specs/live-test-part4.md`
 6. Push งานขึ้น `main` รอ Student CI ของ commit ล่าสุดผ่าน แล้วจึง `register → verify → grade → score`
@@ -127,11 +395,22 @@ python -m pytest -q tests
 
 ## Student CI, การตรวจ CI จริง และ Live
 
-- **Student CI**: GitHub Actions ใน repo ของนักศึกษา ทำงานหลัง push `main` รัน public tests และ build Docker นักศึกษาดูผลและแก้เองก่อนส่งตรวจ
-- **การตรวจ CI จริง**: เมื่อสั่ง `grade` ผู้สอนดึง **commit ล่าสุดของ `main`** ไปรัน public และ hidden tests รวม 131 กรณี พร้อมตรวจ Docker build คิดเป็น **10 คะแนน** ตามน้ำหนัก Parts 1–4 ในตาราง
+- **Student CI**: workflow ที่ให้มาทำงานหลัง push `main` รัน public tests แล้ว build service `webhook` หากขั้นใดไม่ผ่าน workflow จะไม่เป็นสีเขียว นักศึกษาดูรายละเอียดได้ในแท็บ **Actions → Student CI** ของ repo ตนเอง
+- **การตรวจ CI จริง**: เมื่อสั่ง `grade` ผู้สอนดึง **commit ล่าสุดของ `main`** ไปรัน public และ hidden tests รวม 131 กรณี พร้อมตรวจ Docker build คะแนน CI คำนวณจาก tests ตามน้ำหนัก Parts 1–4 ในตาราง หาก build ไม่ผ่าน จะบันทึกคะแนน CI ที่ tests ทำได้และ **ไม่ตรวจ Live**
 - **Live test**: เมื่อ CI/build พร้อม ระบบส่ง YAML ผ่าน Webex ไปยัง bot นักศึกษา **ทีละกรณี 20 กรณี** ที่เลือกจากชุด 58 กรณี ตรวจทั้ง JSON ที่ตอบและสถานะจริงบน router คิดเป็น **10 คะแนน** กรณี `apply` ต้องเปลี่ยน router จริง; หลังตรวจระบบ cleanup interface ของการทดสอบ
 
 Take-home เต็ม **20 คะแนน = CI 10 + Live 10** ส่วน MCQ อีก 10 คะแนนสอบและเก็บผลแยกนอกระบบนี้
+
+ตรวจบนเครื่องของตนก่อน push ได้ด้วยคำสั่งเดียวกับ Student CI:
+
+```bash
+python -m pytest -q tests
+docker compose build webhook
+```
+
+หลังเขียน webhook เสร็จ ให้เก็บ `WEBEX_BOT_TOKEN`, `ROUTER_USER`, `ROUTER_PASS` ใน environment หรือไฟล์ `.env` บนเครื่องที่รัน bot (`.env` ถูกละไว้ใน `.gitignore`) แล้วลอง `docker compose up -d webhook`, `docker compose ps` และ `curl http://127.0.0.1:8000/health` การเปิด bot จริงต้องมี token และการตั้ง webhook/tunnel ตาม `specs/integration-spec-v1.md`; Student CI ตรวจ tests และ build โดยไม่ใช้ secret เหล่านี้
+
+เมื่อ push แล้วให้ดูว่า **Student CI ผ่านที่ SHA ล่าสุดของ `main`** ก่อนส่ง `verify` เพราะ `verify` ตรวจผล workflow ชื่อ `student-ci.yaml` ของ SHA นั้นโดยตรง และไม่เริ่ม GitHub Actions ใหม่ให้ หากแก้ไฟล์แล้ว push อีกครั้ง ต้องรอผลของ SHA ใหม่
 
 ## ตัวอย่างการส่งตรวจในห้อง IPA2026
 
