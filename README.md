@@ -19,7 +19,8 @@ Starter นี้ยังไม่มีคำตอบ จุด `TODO` เป
 | `requirements.txt` | Python packages ที่ต้องติดตั้ง | ใช้ติดตั้ง dependencies |
 | `Dockerfile` | สร้าง image ที่มีโค้ด bot และ Ansible | ใช้เป็นจุดเริ่มต้นและตรวจว่า build ผ่าน |
 | `compose.yaml` | เปิด service `webhook` พร้อม health check | ตั้ง environment ของตนและใช้เปิด bot |
-| `.github/workflows/student-ci.yaml` | รัน public tests และ build image เมื่อ push `main` | ดูผล GitHub Actions ของ commit ล่าสุด |
+| `.github/workflows/student-ci.yaml` | รัน public tests, build และตรวจ HTTP ใน image เมื่อ push `main` | ดูผล GitHub Actions ของ commit ล่าสุด |
+| `scripts/check_webhook_image.py` | ตรวจโค้ดและ HTTP ภายใน image โดยไม่ใช้ token | รันหลัง `docker compose build webhook` |
 | `README.md` | ภาพรวมและลำดับการทำงาน | เริ่มอ่านจากไฟล์นี้ |
 
 Starter ให้ไฟล์ Docker และ Student CI พื้นฐานมาครบแล้ว นักศึกษาไม่ต้องสร้างสามไฟล์นี้จากศูนย์ แต่ต้องทำโค้ดใน `app/` ให้ใช้งานได้จริง เปิด bot ของตน และปรับการตั้งค่า deployment ให้เข้ากับสภาพแวดล้อมของตน **ห้ามใส่ token หรือรหัสผ่านใน repo**
@@ -375,7 +376,7 @@ python -m pytest -q tests
 
 1. นำ Starter ไปสร้าง **GitHub repo งานของตนเอง** ทำงานบน branch `main` หาก repo เป็น private ต้องให้ผู้สอนอ่านได้
 2. ทำ Parts 1–4 ตาม spec รัน public tests ระหว่างทำ
-3. ใช้ `Dockerfile`, `compose.yaml` และ `.github/workflows/student-ci.yaml` ที่ให้มา ตรวจว่า public tests และ `docker compose build webhook` ผ่าน แล้วปรับ deployment ของตนตาม spec ไม่ต้อง publish image ไป Docker Hub
+3. ใช้ `Dockerfile`, `compose.yaml` และ `.github/workflows/student-ci.yaml` ที่ให้มา ตรวจว่า public tests, `docker compose build webhook` และ `python scripts/check_webhook_image.py` ผ่าน แล้วปรับ deployment ของตนตาม spec ไม่ต้อง publish image ไป Docker Hub
 4. สร้าง Webex bot ของตน ตั้ง **ชื่อแสดงเป็นรหัสนักศึกษา 8 หลัก** เพิ่ม bot เข้าห้อง **IPA2026 ก่อนลงทะเบียน** แล้วเปิดโปรแกรม, webhook และ tunnel ให้พร้อมรับข้อความ
 5. ลอง @mention bot ของตนพร้อม YAML หนึ่งไฟล์ ทดลอง `status → plan → apply → status → delete → delete ซ้ำ` บน **interface ที่ตนได้รับมอบหมายเท่านั้น** `plan` ไม่แก้ router; `apply` และ `delete` แก้สถานะจริง ดูตัวอย่าง YAML ใน `sample-tests/part4/live/` และขั้นตอนใน `specs/live-test-part4.md`
 6. Push งานขึ้น `main` รอ Student CI ของ commit ล่าสุดผ่าน แล้วจึง `register → verify → grade → score`
@@ -395,20 +396,23 @@ python -m pytest -q tests
 
 ## Student CI, การตรวจ CI จริง และ Live
 
-- **Student CI**: workflow ที่ให้มาทำงานหลัง push `main` รัน public tests แล้ว build service `webhook` หากขั้นใดไม่ผ่าน workflow จะไม่เป็นสีเขียว นักศึกษาดูรายละเอียดได้ในแท็บ **Actions → Student CI** ของ repo ตนเอง
-- **การตรวจ CI จริง**: เมื่อสั่ง `grade` ผู้สอนดึง **commit ล่าสุดของ `main`** ไปรัน public และ hidden tests รวม 131 กรณี พร้อมตรวจ Docker build คะแนน CI คำนวณจาก tests ตามน้ำหนัก Parts 1–4 ในตาราง หาก build ไม่ผ่าน จะบันทึกคะแนน CI ที่ tests ทำได้และ **ไม่ตรวจ Live**
+- **Student CI**: workflow ที่ให้มาทำงานหลัง push `main` รัน public tests, build service `webhook` และตรวจ HTTP `/health` กับ `/webhook` ภายใน image โดยไม่ใช้ token หากขั้นใดไม่ผ่าน workflow จะไม่เป็นสีเขียว นักศึกษาดูรายละเอียดได้ในแท็บ **Actions → Student CI** ของ repo ตนเอง
+- **การตรวจ CI จริง**: เมื่อสั่ง `grade` ผู้สอนดึง **commit ล่าสุดของ `main`** ไปรัน public และ hidden tests รวม 131 กรณี พร้อมตรวจ Docker build และ HTTP ภายใน image คะแนน CI คำนวณจาก tests ตามน้ำหนัก Parts 1–4 ในตาราง หาก build หรือการตรวจ image ไม่ผ่าน จะบันทึกคะแนน CI ที่ tests ทำได้และ **ไม่ตรวจ Live**
 - **Live test**: เมื่อ CI/build พร้อม ระบบส่ง YAML ผ่าน Webex ไปยัง bot นักศึกษา **ทีละกรณี 20 กรณี** ที่เลือกจากชุด 58 กรณี ตรวจทั้ง JSON ที่ตอบและสถานะจริงบน router คิดเป็น **10 คะแนน** กรณี `apply` ต้องเปลี่ยน router จริง; หลังตรวจระบบ cleanup interface ของการทดสอบ
 
 Take-home เต็ม **20 คะแนน = CI 10 + Live 10** ส่วน MCQ อีก 10 คะแนนสอบและเก็บผลแยกนอกระบบนี้
+
+ให้คง service ชื่อ `webhook` ใน `compose.yaml` และให้ image เริ่มด้วย `python -m app.webhook_server` ตาม Dockerfile ที่ให้มา ตัวตรวจจะเปิด HTTP server จำลอง **ภายใน image** เพื่อเรียก `/health` และ `/webhook` โดยไม่ใช้ Webex token หรือ router การ build ผ่านอย่างเดียวจึงยังไม่พอ และการตรวจนี้ไม่ใช่การตรวจ Live กับ bot ที่เปิดใช้งานจริง
 
 ตรวจบนเครื่องของตนก่อน push ได้ด้วยคำสั่งเดียวกับ Student CI:
 
 ```bash
 python -m pytest -q tests
 docker compose build webhook
+python scripts/check_webhook_image.py
 ```
 
-หลังเขียน webhook เสร็จ ให้เก็บ `WEBEX_BOT_TOKEN`, `ROUTER_USER`, `ROUTER_PASS` ใน environment หรือไฟล์ `.env` บนเครื่องที่รัน bot (`.env` ถูกละไว้ใน `.gitignore`) แล้วลอง `docker compose up -d webhook`, `docker compose ps` และ `curl http://127.0.0.1:8000/health` การเปิด bot จริงต้องมี token และการตั้ง webhook/tunnel ตาม `specs/integration-spec-v1.md`; Student CI ตรวจ tests และ build โดยไม่ใช้ secret เหล่านี้
+หลังเขียน webhook เสร็จ ให้เก็บ `WEBEX_BOT_TOKEN`, `ROUTER_USER`, `ROUTER_PASS` ใน environment หรือไฟล์ `.env` บนเครื่องที่รัน bot (`.env` ถูกละไว้ใน `.gitignore`) แล้วลอง `docker compose up -d webhook`, `docker compose ps` และ `curl http://127.0.0.1:8000/health` การเปิด bot จริงต้องมี token และการตั้ง webhook/tunnel ตาม `specs/integration-spec-v1.md`; Student CI ตรวจ tests, build และ HTTP ภายใน image โดยไม่ใช้ secret เหล่านี้
 
 เมื่อ push แล้วให้ดูว่า **Student CI ผ่านที่ SHA ล่าสุดของ `main`** ก่อนส่ง `verify` เพราะ `verify` ตรวจผล workflow ชื่อ `student-ci.yaml` ของ SHA นั้นโดยตรง และไม่เริ่ม GitHub Actions ใหม่ให้ หากแก้ไฟล์แล้ว push อีกครั้ง ต้องรอผลของ SHA ใหม่
 

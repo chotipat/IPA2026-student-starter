@@ -48,8 +48,8 @@ Public and hidden tests contribute within each part:
 For each part:
 points = passed tests / total tests in that part * part weight.
 
-Student CI runs public tests and builds the Docker images.
-Official instructor grading also runs hidden tests.
+Student CI runs public tests, builds the webhook image, and performs an offline HTTP smoke check inside it.
+Official instructor grading also runs hidden tests and its own image smoke check.
 Docker Hub publication is not required.
 The grading scheduler can have up to four official CI runs in progress. Live
 testing remains one student at a time so router changes and Webex replies do
@@ -67,7 +67,7 @@ from each required capability group. The selection is reproducible for that
 submission and the selected variant IDs are stored with its result. This keeps
 coverage comparable while changing the YAML values and syntax between attempts.
 Official build verification must succeed before live grading begins.
-If the build fails, retain earned CI points and award zero live points.
+If the build or image smoke fails, retain earned CI points and award zero live points.
 If the registered bot does not answer a Live request by its deadline, the
 remaining Live cases fail immediately so the next student's turn can begin.
 This consumes the attempt. A grading service, Webex API, or router failure

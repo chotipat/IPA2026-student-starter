@@ -87,6 +87,8 @@ Use WEBHOOK_HOST and WEBHOOK_PORT; the default port is 8000.
 Provide a health check and a restart policy.
 Include runtime Ansible files in the image.
 
+The provided Dockerfile starts the webhook with `CMD ["python", "-m", "app.webhook_server"]`. Keep the Compose service named `webhook` and do not override its command or entrypoint. After building, Student CI runs `scripts/check_webhook_image.py` against the built image. It imports the application and backends, then checks `/health` and `/webhook` with a local fake event. This offline smoke does not use Webex credentials or contact a router. The instructor runs its own copy of the same contract; a smoke failure blocks Live testing.
+
 Supply credentials through environment, not image contents or source code:
 WEBEX_BOT_TOKEN, ROUTER_USER, ROUTER_PASS.
 
