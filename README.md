@@ -40,7 +40,7 @@ Starter ให้ไฟล์ Docker และ Student CI พื้นฐาน�
 
 YAML หนึ่งไฟล์คือ **หนึ่งคำขอที่สมบูรณ์ในตัวเอง** มี `version`, `router`, `method`, `action` และ `desired.interface` โปรแกรมต้องอ่านไฟล์ ตรวจรูปแบบและตรวจว่า backend รองรับ action นั้น ก่อนทำงานกับ router
 
-ตัวอย่างนี้ใช้รหัสสมมติ `66070123` และ interface เดียวกันเพื่อให้เห็นลำดับการทำงาน **ก่อนทดลองจริงให้เปลี่ยน router, interface และ IP เป็นค่าที่ตนได้รับมอบหมาย**
+ตัวอย่างนี้ใช้รหัสสมมติ `66070123` และ interface เดียวกันเพื่อให้เห็นลำดับการทำงาน **ก่อนทดลองจริงให้เปลี่ยน router และ interface เป็นค่าที่ตนได้รับมอบหมาย; สำหรับ `plan`/`apply` ให้ใส่ `ipv4`, `description`, `admin_state` ครบตาม spec**
 
 ```yaml
 version: 1
@@ -50,9 +50,6 @@ action: status
 desired:
   interface:
     name: Loopback66070123
-    ipv4: 172.23.123.1/32
-    description: IPA2026-66070123
-    admin_state: up
 ```
 
 | Action | ความหมาย | เปลี่ยน router หรือไม่ | ตัวอย่างผล |
@@ -67,6 +64,8 @@ desired:
 ใช้บัญชี Webex ของนักศึกษา @mention **bot ของตัวเองจริง ๆ** และแนบ YAML หนึ่งไฟล์ในข้อความเดียวกัน แต่ละตัวอย่างด้านล่างคือ **ข้อความ Webex คนละครั้ง** ยกเว้นตัวอย่างที่ 1 ซึ่งจงใจไม่แนบไฟล์
 
 ตัวอย่างสมมติว่า `Loopback66070123` เป็น interface ที่นักศึกษาได้รับอนุญาตให้ใช้บน `10.0.29.101` ก่อนทดลองต้องเปลี่ยน router, interface และ IP เป็นค่าที่ตนได้รับมอบหมาย **ห้ามลบ interface ของผู้อื่น**
+
+ไฟล์ YAML ของตัวอย่างข้อ 2–10 อยู่ใน [sample-tests/webex-manual/](sample-tests/webex-manual/) สำหรับแนบส่งให้ bot ทีละไฟล์ตามลำดับ ไฟล์ชุดนี้ใช้ลองผ่าน Webex ด้วยมือ ไม่ได้ถูกรันโดย pytest; ส่วน public cases ที่ pytest ใช้อยู่ในโฟลเดอร์ `cases/` และ `fixtures/`
 
 ### เลือก `method` และ `action` ให้เข้าคู่กัน
 
@@ -112,6 +111,8 @@ version: 1
 desired: [interface
 ```
 
+**ไฟล์สำหรับลองส่ง:** [02-invalid-yaml.yaml](sample-tests/webex-manual/02-invalid-yaml.yaml)
+
 **bot ควรตอบ:**
 
 ```json
@@ -135,6 +136,8 @@ desired:
   interface:
     name: Loopback66070123
 ```
+
+**ไฟล์สำหรับลองส่ง:** [03-status-not-found.yaml](sample-tests/webex-manual/03-status-not-found.yaml)
 
 **bot ควรตอบ:**
 
@@ -164,6 +167,8 @@ desired:
     description: IPA2026-66070123
     admin_state: up
 ```
+
+**ไฟล์สำหรับลองส่ง:** [04-plan-create.yaml](sample-tests/webex-manual/04-plan-create.yaml)
 
 **bot ควรตอบ:**
 
@@ -203,6 +208,8 @@ desired:
     admin_state: up
 ```
 
+**ไฟล์สำหรับลองส่ง:** [05-apply-create.yaml](sample-tests/webex-manual/05-apply-create.yaml)
+
 **bot ควรตอบ:**
 
 ```json
@@ -227,10 +234,9 @@ action: status
 desired:
   interface:
     name: Loopback66070123
-    ipv4: 172.23.123.1/32
-    description: IPA2026-66070123
-    admin_state: up
 ```
+
+**ไฟล์สำหรับลองส่ง:** [06-status-found.yaml](sample-tests/webex-manual/06-status-found.yaml)
 
 **bot ควรตอบ:**
 
@@ -268,6 +274,8 @@ desired:
     admin_state: up
 ```
 
+**ไฟล์สำหรับลองส่ง:** [07-plan-no-change.yaml](sample-tests/webex-manual/07-plan-no-change.yaml)
+
 **bot ควรตอบ:**
 
 ```json
@@ -291,6 +299,8 @@ desired:
   interface:
     name: Loopback66070123
 ```
+
+**ไฟล์สำหรับลองส่ง:** [08-invalid-action.yaml](sample-tests/webex-manual/08-invalid-action.yaml)
 
 **bot ควรตอบ:**
 
@@ -316,6 +326,8 @@ desired:
     name: Loopback66070123
 ```
 
+**ไฟล์สำหรับลองส่ง:** [09-delete.yaml](sample-tests/webex-manual/09-delete.yaml)
+
 **bot ควรตอบ:**
 
 ```json
@@ -340,6 +352,8 @@ desired:
     name: Loopback66070123
 ```
 
+**ไฟล์สำหรับลองส่ง:** [10-delete-again.yaml](sample-tests/webex-manual/10-delete-again.yaml)
+
 **bot ควรตอบ:**
 
 ```json
@@ -358,11 +372,11 @@ desired:
 
 - นักศึกษา **ไม่ควรแก้โปรแกรมทดสอบที่ให้มาใน `tests/`** ให้แก้โค้ดใน `app/` จน tests ผ่าน
 - โปรแกรมทดสอบบางไฟล์ของ Parts 1–3 ค้นหา `cases/*.yaml` อัตโนมัติ นักศึกษาเพิ่ม case พร้อม fixture ตามรูปแบบเดิมได้ **โดยไม่ต้องแก้ `tests/`**
-- บาง tests เขียนกรณีไว้ใน Python โดยตรง ไม่ได้อ่าน `sample-tests/` ส่วน `sample-tests/part4/live/` เป็น YAML สำหรับส่งให้ Webex bot ด้วยมือ ไม่ถูก pytest เก็บอัตโนมัติ
+- บาง tests เขียนกรณีไว้ใน Python โดยตรง ไม่ได้อ่าน `sample-tests/` ส่วน `sample-tests/webex-manual/` เป็นชุด YAML ที่ตรงกับตัวอย่างข้อ 2–10 และ `sample-tests/part4/live/` เป็น YAML ตัวอย่างพื้นฐาน ทั้งสองโฟลเดอร์ใช้ส่งให้ Webex bot ด้วยมือ ไม่ถูก pytest เก็บอัตโนมัติ
 - ตัวอย่าง: `tests/test_part1.py` อ่าน `sample-tests/part1/cases/`; `tests/test_part1_mentions.py` ตรวจ mention และกรณีไม่แนบไฟล์ที่เขียนไว้ใน Python โดยตรง
 - การเพิ่มกรณีทดสอบช่วยตรวจงานของตน **ไม่เพิ่มคะแนนโดยตรง** เพราะการตรวจจริงใช้ tests และ cases ของผู้สอน
 
-ติดตั้ง dependencies แล้วรัน public tests ซึ่งมี 82 กรณี:
+ติดตั้ง dependencies แล้วรัน public tests ซึ่งมี 84 กรณี:
 
 ```bash
 python3 -m venv .venv
@@ -379,7 +393,7 @@ python -m pytest -q tests
 2. ทำ Parts 1–4 ตาม spec รัน public tests ระหว่างทำ
 3. ใช้ `Dockerfile`, `compose.yaml` และ `.github/workflows/student-ci.yaml` ที่ให้มา ตรวจว่า public tests, `docker compose build webhook` และ `python scripts/check_webhook_image.py` ผ่าน แล้วปรับ deployment ของตนตาม spec ไม่ต้อง publish image ไป Docker Hub
 4. สร้าง Webex bot ของตน ตั้ง **ชื่อแสดงเป็นรหัสนักศึกษา 8 หลัก** เพิ่ม bot เข้าห้อง **IPA2026 ก่อนลงทะเบียน** แล้วเปิดโปรแกรม, webhook และ tunnel ให้พร้อมรับข้อความ
-5. ลอง @mention bot ของตนพร้อม YAML หนึ่งไฟล์ ทดลอง `status → plan → apply → status → delete → delete ซ้ำ` บน **interface ที่ตนได้รับมอบหมายเท่านั้น** `plan` ไม่แก้ router; `apply` และ `delete` แก้สถานะจริง ดูตัวอย่าง YAML ใน `sample-tests/part4/live/` และขั้นตอนใน `specs/live-test-part4.md`
+5. ลอง @mention bot ของตนพร้อม YAML หนึ่งไฟล์ ทดลอง `status → plan → apply → status → delete → delete ซ้ำ` บน **interface ที่ตนได้รับมอบหมายเท่านั้น** `plan` ไม่แก้ router; `apply` และ `delete` แก้สถานะจริง ดู [ชุด YAML สำหรับลองส่งทีละข้อ](sample-tests/webex-manual/) ตัวอย่างพื้นฐานใน `sample-tests/part4/live/` และขั้นตอนใน `specs/live-test-part4.md`
 6. Push งานขึ้น `main` รอ Student CI ของ commit ล่าสุดผ่าน แล้วจึง `register → verify → grade → score`
 
 ## บัญชี Webex สองบัญชีของนักศึกษา
@@ -398,7 +412,7 @@ python -m pytest -q tests
 ## Student CI, การตรวจ CI จริง และ Live
 
 - **Student CI**: workflow ที่ให้มาทำงานหลัง push `main` รัน public tests, build service `webhook` และตรวจ HTTP `/health` กับ `/webhook` ภายใน image โดยไม่ใช้ token หากขั้นใดไม่ผ่าน workflow จะไม่เป็นสีเขียว นักศึกษาดูรายละเอียดได้ในแท็บ **Actions → Student CI** ของ repo ตนเอง
-- **การตรวจ CI จริง**: เมื่อสั่ง `grade` ผู้สอนดึง **commit ล่าสุดของ `main`** ไปรัน public และ hidden tests รวม 131 กรณี พร้อมตรวจ Docker build และ HTTP ภายใน image คะแนน CI คำนวณจาก tests ตามน้ำหนัก Parts 1–4 ในตาราง หาก build หรือการตรวจ image ไม่ผ่าน จะบันทึกคะแนน CI ที่ tests ทำได้และ **ไม่ตรวจ Live**
+- **การตรวจ CI จริง**: เมื่อสั่ง `grade` ผู้สอนดึง **commit ล่าสุดของ `main`** ไปรัน public และ hidden tests รวม 141 กรณี พร้อมตรวจ Docker build และ HTTP ภายใน image คะแนน CI คำนวณจาก tests ตามน้ำหนัก Parts 1–4 ในตาราง หาก build หรือการตรวจ image ไม่ผ่าน จะบันทึกคะแนน CI ที่ tests ทำได้และ **ไม่ตรวจ Live**
 - **Live test**: เมื่อ CI/build พร้อม ระบบส่ง YAML ผ่าน Webex ไปยัง bot นักศึกษา **ทีละกรณี 20 กรณี** ที่เลือกจากชุด 58 กรณี ตรวจทั้ง JSON ที่ตอบและสถานะจริงบน router คิดเป็น **10 คะแนน** กรณี `apply` ต้องเปลี่ยน router จริง; หลังตรวจระบบ cleanup interface ของการทดสอบ
 
 Take-home เต็ม **20 คะแนน = CI 10 + Live 10** ส่วน MCQ อีก 10 คะแนนสอบและเก็บผลแยกนอกระบบนี้
