@@ -25,6 +25,35 @@ Starter นี้ยังไม่มีคำตอบ จุด `TODO` เป
 
 Starter ให้ไฟล์ Docker และ Student CI พื้นฐานมาครบแล้ว นักศึกษาไม่ต้องสร้างสามไฟล์นี้จากศูนย์ แต่ต้องทำโค้ดใน `app/` ให้ใช้งานได้จริง เปิด bot ของตน และปรับการตั้งค่า deployment ให้เข้ากับสภาพแวดล้อมของตน **ห้ามใส่ token หรือรหัสผ่านใน repo**
 
+## ภาพรวม: bot รับคำขออย่างไร
+
+นักศึกษา @mention bot ของตนและแนบ YAML ในห้อง IPA2026 จากนั้น Webex แจ้งเหตุการณ์ใหม่ไปยัง HTTPS tunnel ของ bot (Cloudflare เป็นเพียงตัวอย่างของ tunnel) โดย event แจ้ง **รหัสข้อความ** ไม่ได้ส่งเนื้อหา YAML ให้ bot โดยตรง
+
+```mermaid
+sequenceDiagram
+    actor Student as นักศึกษา
+    participant Webex as Webex
+    participant Tunnel as HTTPS tunnel
+    participant Bot as webhook ของ bot นักศึกษา
+    participant Router as Router
+
+    Student->>Webex: @mention bot + แนบ YAML
+    Webex->>Tunnel: แจ้ง event messages/created
+    Tunnel->>Bot: POST /webhook
+    Bot-->>Tunnel: HTTP 200 รับ event แล้ว
+    Tunnel-->>Webex: ส่ง HTTP 200 กลับ
+    Bot->>Webex: GET ข้อความและดาวน์โหลดไฟล์ผ่าน Webex API
+    Webex-->>Bot: ข้อความและ YAML
+    Bot->>Bot: ตรวจ mention, YAML และ method/action
+    Note over Bot,Router: คำขอที่ไม่ผ่านการตรวจตอบ error โดยไม่ติดต่อ router
+    Bot->>Router: คำขอที่ต้องใช้ router: อ่านหรือเปลี่ยน interface
+    Router-->>Bot: สถานะหรือผลการทำงาน
+    Bot->>Webex: POST /v1/messages ส่ง JSON ไปห้องเดิม
+    Webex-->>Student: แสดงคำตอบของ bot
+```
+
+**HTTP 200 จาก `/webhook` แปลว่ารับ event แล้ว** ยังไม่ใช่ผลของ YAML หลังประมวลผล bot จึงส่ง JSON เป็นข้อความใหม่ไปที่ Webex API **โดยตรง** ไม่ต้องส่งคำตอบย้อนผ่าน tunnel โปรแกรมต้องจัดการคำขอทีละรายการเพื่อไม่ให้การเปลี่ยน router ซ้อนกัน
+
 ## งานแต่ละส่วน
 
 | ส่วน | งานและไฟล์หลัก | Spec หลัก | คะแนน CI |
@@ -413,9 +442,32 @@ python -m pytest -q tests
 
 ## Student CI, การตรวจ CI จริง และ Live
 
-- **Student CI**: workflow ที่ให้มาทำงานหลัง push `main` รัน public tests, build service `webhook` และตรวจ HTTP `/health` กับ `/webhook` ภายใน image โดยไม่ใช้ token หากขั้นใดไม่ผ่าน workflow จะไม่เป็นสีเขียว นักศึกษาดูรายละเอียดได้ในแท็บ **Actions → Student CI** ของ repo ตนเอง
+```mermaid
+flowchart TD
+    Push["นักศึกษา push งานไปที่ main"] --> Repo["repo นักศึกษาบน GitHub"]
+    Repo --> StudentCI["Student CI รันอัตโนมัติ<br/>public 84 กรณี + build + ตรวจ HTTP ใน image"]
+
+    Grade["นักศึกษาสั่ง grade ใน Webex"] --> Reference["IPA2026-Reference รับคำสั่ง"]
+    Reference --> SHA["grader อ่าน commit ล่าสุดของ main<br/>จาก repo ที่ลงทะเบียน"]
+    SHA --> OfficialCI["เริ่ม Instructor GitHub Actions ที่ SHA นี้<br/>public + hidden 141 กรณี + build + ตรวจ HTTP ใน image"]
+    OfficialCI --> Ready{"tests จบและ build ผ่าน?"}
+    Ready -- "ไม่" --> NoLive["ข้าม Live<br/>แจ้งผลตามสาเหตุ"]
+    Ready -- "ใช่" --> Reset["รีเซ็ต Loopback ของรหัสที่ตรวจ<br/>บน 10.0.29.101"]
+    Reset --> Live["ส่ง YAML ผ่าน Webex ทีละกรณี<br/>20 กรณีที่เลือกจากชุด 58"]
+    Live --> Check["ตรวจ JSON ที่ bot ตอบ<br/>และอ่านสถานะ router โดยตรง"]
+    Check --> Cleanup["ลบ Loopback ของรหัสที่ตรวจ"]
+    Cleanup --> Score["สรุปคะแนน CI /10 + Live /10"]
+    NoLive --> Result["แจ้งผลใน Webex และบันทึกในระบบ"]
+    Score --> Result
+```
+
+`push` ทำให้ **Student CI** รันเอง แต่ยังไม่เริ่มการตรวจคะแนนของผู้สอน หลัง `register` ผูก repo กับ bot แล้ว นักศึกษาอาจใช้ `verify` เช็ก Student CI ของ commit ล่าสุดและลองถาม bot แบบไม่แนบ YAML โดยไม่ใช้สิทธิส่งตรวจ **เมื่อสั่ง `grade` ใน Webex เท่านั้น** `IPA2026-Reference` จึงอ่าน commit ล่าสุดของ `main` จาก repo ที่ลงทะเบียนและเริ่ม official CI หาก tests จบและ build ผ่าน จึงเริ่ม Live โดยส่งคำขอผ่าน Webex ไปยัง bot นักศึกษา และ grader อ่าน router เองเพื่อตรวจผลจริง
+
+- **Student CI**: workflow ที่ให้มาทำงานหลัง push `main` รัน public tests, build service `webhook` และตรวจ HTTP `/health` กับ `/webhook` ภายใน image โดยไม่ใช้ token ดูผลใน repo ของตนที่ **Actions → Student CI → run ของ commit ล่าสุด** ขั้น **Run public tests** แสดงจำนวนที่ผ่าน/ไม่ผ่านและรายละเอียดกรณีที่ไม่ผ่าน เช่น `84 passed`; ขั้น **Build webhook image** และ **Check webhook inside built image** แสดงผลผ่าน/ไม่ผ่านแยกกัน หากขั้นก่อนหน้าไม่ผ่าน ขั้นถัดไปจะถูกข้าม Student CI ไม่แสดงคะแนนทางการ CI/Live และไม่ส่งผลไปห้อง Webex อัตโนมัติ
 - **การตรวจ CI จริง**: เมื่อสั่ง `grade` ผู้สอนดึง **commit ล่าสุดของ `main`** ไปรัน public และ hidden tests รวม 141 กรณี พร้อมตรวจ Docker build และ HTTP ภายใน image คะแนน CI คำนวณจาก tests ตามน้ำหนัก Parts 1–4 ในตาราง หาก build หรือการตรวจ image ไม่ผ่าน จะบันทึกคะแนน CI ที่ tests ทำได้และ **ไม่ตรวจ Live**
 - **Live test**: เมื่อ CI/build พร้อม ระบบส่ง YAML ผ่าน Webex ไปยัง bot นักศึกษา **ทีละกรณี 20 กรณี** ที่เลือกจากชุด 58 กรณี ตรวจทั้ง JSON ที่ตอบและสถานะจริงบน router คิดเป็น **10 คะแนน** กรณี `apply` ต้องเปลี่ยน router จริง; หลังตรวจระบบ cleanup interface ของการทดสอบ
+
+ใน Live ระบบตั้งเวลารอคำตอบจาก bot **15 วินาทีสำหรับกรณีแรกที่ไม่แนบ YAML** และ **45 วินาทีต่อกรณีที่แนบ YAML** นับหลังส่งข้อความสำเร็จ หาก bot ไม่ตอบทัน กรณีนั้นไม่ผ่านและระบบหยุดส่งกรณีที่เหลือ โดยนับกรณีที่เหลือว่าไม่ผ่าน เพื่อเปิดคิวให้คนถัดไป เวลานี้เป็นเวลารอคำตอบ **ต่อกรณี** ไม่ใช่เวลารวมของ Live ทั้งรอบ; ขณะนี้ไม่มีเวลาจำกัดรวมทั้งรอบ Live แยกต่างหาก หากระบบผู้สอน, Webex หรือ router ขัดข้อง ระบบคืนสิทธิส่งตรวจครั้งนั้น
 
 Take-home เต็ม **20 คะแนน = CI 10 + Live 10** ส่วน MCQ อีก 10 คะแนนสอบและเก็บผลแยกนอกระบบนี้
 
@@ -493,9 +545,14 @@ Commit: 0123456789abcdef0123456789abcdef01234567
 ใช้สิทธิส่งตรวจ: 1/10 ครั้ง
 ส่งตรวจได้อีก: 9 ครั้ง
 คะแนน Take-home สูงสุด: ยังไม่มีงานที่ตรวจครบ
+MCQ: 10 คะแนน ตรวจและเก็บนอกระบบนี้
 งานล่าสุด: เข้าคิว
+ลำดับคิว CI: 1/1
+ก่อน Live ระบบจะลบ Loopback66070123 บน 10.0.29.101 เพื่อเริ่มตรวจจากสถานะว่าง
 จะแจ้งคะแนนอีกครั้งเมื่อตรวจเสร็จ
 ```
+
+`งาน #12` เป็นเลขอ้างอิงงานในระบบที่ใช้ร่วมกันทุกคน **ไม่ใช่ลำดับคิว** และไม่ได้หมายความว่ามี 11 งานรอตรวจอยู่ก่อน ดูบรรทัด `ลำดับคิว CI: 1/1` สำหรับตำแหน่งในกลุ่มงานที่ **ยังรอ CI** ณ เวลาที่ตอบ; ตัวเลขนี้ไม่รวมงานที่กำลังตรวจ CI หรือรอ Live และจะเปลี่ยนตามคิวจริง
 
 เมื่อตรวจเสร็จ ระบบส่งข้อความอีกครั้ง ตัวอย่างกรณีผ่านทั้งหมด:
 
@@ -504,9 +561,19 @@ Commit: 0123456789abcdef0123456789abcdef01234567
 CI: 10/10
 Live: 10/10
 Take-home ครั้งนี้: 20/20
+66070123
 ใช้สิทธิส่งตรวจ: 1/10 ครั้ง
 ส่งตรวจได้อีก: 9 ครั้ง
+คะแนน Take-home สูงสุด: 20/20
+MCQ: 10 คะแนน ตรวจและเก็บนอกระบบนี้
+งานล่าสุด: ตรวจเสร็จ
+คะแนน CI ล่าสุด: 10/10
+คะแนน Live ล่าสุด: 10/10
 ```
+
+ข้อความ `ตรวจเสร็จ` แสดงผล **ครั้งนี้** ก่อน แล้วตามด้วยสรุปของรหัสนักศึกษา: โควตาที่ใช้และเหลือ คะแนน Take-home สูงสุดจากการส่งครั้งเดียว และคะแนนของงานล่าสุด ถ้าส่งตรวจมาแล้ว 4 ครั้ง จะเห็น `ใช้สิทธิส่งตรวจ: 4/10 ครั้ง` และ `ส่งตรวจได้อีก: 6 ครั้ง` แทนตัวเลข 1/10 ในตัวอย่าง
+
+`Build` คือผล build และตรวจ HTTP ใน image ของการตรวจจริง; `CI` เป็นคะแนนจาก public และ hidden tests; `Live` เป็นคะแนนจาก 20 กรณีที่เลือกมาตรวจ ส่วน MCQ แยกเก็บนอกระบบ หาก build ไม่ผ่าน จะไม่เริ่ม Live และแสดง `Live: 0/10` หาก official tests หมดเวลาหรือไม่มีรายงานผล ระบบจะเพิ่มบรรทัด `ข้าม Live: ...` ก่อนสรุปผล
 
 ผลจริงอาจได้คะแนนต่ำกว่าตัวอย่าง `grade` ที่รับเป็นงานใหม่ **ใช้โควตาหนึ่งครั้ง** แม้โค้ด, tests, build หรือ bot ของนักศึกษามีปัญหา
 
@@ -525,6 +592,7 @@ Take-home ครั้งนี้: 20/20
 ใช้สิทธิส่งตรวจ: 1/10 ครั้ง
 ส่งตรวจได้อีก: 9 ครั้ง
 คะแนน Take-home สูงสุด: 20/20
+MCQ: 10 คะแนน ตรวจและเก็บนอกระบบนี้
 งานล่าสุด: ตรวจเสร็จ
 คะแนน CI ล่าสุด: 10/10
 คะแนน Live ล่าสุด: 10/10
