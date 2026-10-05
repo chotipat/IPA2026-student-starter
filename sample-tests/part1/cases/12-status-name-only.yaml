@@ -1,0 +1,5 @@
+target: core
+request: 12-status-name-only.yaml
+expected:
+  status: ok
+  result: accepted

@@ -9,11 +9,12 @@ Each YAML request must be attached in the same message as a real bot mention.
 ## Test sequence
 1. Mention without an attachment: expect error/no_yaml.
 2. Send malformed YAML: expect error/invalid_yaml.
-3. Send the status fixture: expect found or not_found.
+3. Send the name-only status fixture: expect found or not_found.
 4. If the interface is absent, send plan: expect planned/create.
 5. Send apply: expect ok/applied.
 6. Send status again: expect found with ipv4, description and admin_state
-   matching the desired values.
+   read from the router and matching the applied values. Extra values in a
+   status request are ignored, even when they disagree with the router.
 7. Send plan again: expect planned/no_change and changes={}.
 8. Send a Netmiko delete request: expect deleted.
 9. Send status again: expect not_found and interface=null.

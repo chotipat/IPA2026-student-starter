@@ -106,9 +106,11 @@ All errors must use:
 - missing_admin_state
 - invalid_admin_state
 
-For `action: delete`, `missing_ipv4`, `missing_description`,
-`missing_admin_state`, and `invalid_admin_state` do not apply because delete
-requires only the interface name inside `desired.interface`.
+For `action: status` and `action: delete`, `missing_ipv4`,
+`missing_description`, `missing_admin_state`, and `invalid_admin_state` do
+not apply. Both actions require only the interface name inside
+`desired.interface`. For status, any supplied values of those fields are
+ignored; `found` contains values read from the router.
 
 ## Backend error results
 

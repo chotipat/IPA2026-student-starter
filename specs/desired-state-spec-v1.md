@@ -86,8 +86,21 @@ Example `delete` request:
 
 ## Interface fields
 
-For `status`, `plan`, and `apply`, `desired.interface` is a complete
-interface definition and contains:
+For `status`, only the interface identifier is required:
+
+    desired:
+      interface:
+        name: Loopback123
+
+The request still requires `version`, `router`, `method`, and `action`.
+Optional `ipv4`, `description`, and `admin_state` fields are accepted for
+`status` but ignored, including their values. Status reads the actual router
+state by name and returns `found` with the actual interface values, or
+`not_found` when the interface is absent. It does not compare these fields
+with the router or use them for validation.
+
+For `plan` and `apply`, `desired.interface` is a complete interface
+definition and contains:
 
     name
     ipv4
@@ -109,8 +122,8 @@ Allowed values:
 - up
 - down
 
-`admin_state` is required only for actions that use the complete desired
-interface state. It is not required for `delete`.
+`admin_state` is required for `plan` and `apply` only. It is ignored
+for `status` and is not required for `delete`.
 
 ## Method/action compatibility
 
@@ -137,9 +150,9 @@ method, return:
 Method/action compatibility is checked before validating fields that are
 specific to the selected action.
 
-## Validation for delete
+## Validation for status and delete
 
-For `action: delete`, the normal request envelope is still required:
+For `action: status` and `action: delete`, the normal request envelope is still required:
 
     version
     router
@@ -156,7 +169,8 @@ missing:
     missing_interface
     missing_interface_name
 
-The following complete-desired-state errors do not apply to `delete`:
+The following complete-desired-state errors apply only to `plan` and `apply`,
+not to `status` or `delete`:
 
     missing_ipv4
     missing_description

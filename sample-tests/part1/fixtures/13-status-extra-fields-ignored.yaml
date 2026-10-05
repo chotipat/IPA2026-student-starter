@@ -5,3 +5,6 @@ action: status
 desired:
   interface:
     name: Loopback123
+    ipv4: 192.0.2.99/32
+    description: NOT-ON-ROUTER
+    admin_state: invalid-value

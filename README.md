@@ -134,9 +134,6 @@ action: status
 desired:
   interface:
     name: Loopback66070123
-    ipv4: 172.23.123.1/32
-    description: IPA2026-66070123
-    admin_state: up
 ```
 
 **bot ควรตอบ:**
@@ -146,6 +143,8 @@ desired:
 ```
 
 **หลังส่ง:** Interface ยังไม่มี `restconf` ใช้กับ `status` ได้ และ `status` อ่านค่าอย่างเดียว `not_found` จึงไม่ใช่ error
+
+**ค่าใน `status`:** ต้องใส่เพียง `desired.interface.name` พร้อม `version`, `router`, `method` และ `action` ฟิลด์ `ipv4`, `description` และ `admin_state` ใส่เพิ่มได้ แต่ bot จะละเลยค่าเหล่านั้น และตอบ `found` พร้อมค่าจริงที่อ่านจาก router หรือ `not_found` หากไม่พบ interface
 
 ### 4. `plan`: ดูว่าจะต้องสร้างอะไร
 
@@ -180,6 +179,8 @@ desired:
   }
 }
 ```
+
+**อ่านผล `plan`:** `name: Loopback66070123` ใน YAML ใช้ระบุ interface เป้าหมาย จึงไม่ใส่ `name` หรือ `interface` ใน `changes` ค่า `changes` แสดงเฉพาะ `ipv4`, `description` และ `admin_state` ที่ต้องจัดการ กรณี `create` จะแสดงค่า `to` ของทั้งสามรายการ; กรณี `update` จะแสดงเฉพาะค่าที่ต่าง; ถ้าค่าตรงกันทั้งหมดจะได้ `operation: no_change` และ `changes: {}`
 
 **หลังส่ง:** Interface **ยังไม่มี** `restconf` ใช้กับ `plan` ได้ แต่ `plan` เพียงบอกว่าจะทำอะไร ไม่เปลี่ยน router
 
