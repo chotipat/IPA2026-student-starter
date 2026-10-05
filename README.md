@@ -396,6 +396,8 @@ python -m pytest -q tests
 5. ลอง @mention bot ของตนพร้อม YAML หนึ่งไฟล์ ทดลอง `status → plan → apply → status → delete → delete ซ้ำ` บน **interface ที่ตนได้รับมอบหมายเท่านั้น** `plan` ไม่แก้ router; `apply` และ `delete` แก้สถานะจริง ดู [ชุด YAML สำหรับลองส่งทีละข้อ](sample-tests/webex-manual/) ตัวอย่างพื้นฐานใน `sample-tests/part4/live/` และขั้นตอนใน `specs/live-test-part4.md`
 6. Push งานขึ้น `main` รอ Student CI ของ commit ล่าสุดผ่าน แล้วจึง `register → verify → grade → score`
 
+เมื่อสั่ง `grade` ระบบจะแจ้งว่า ก่อน Live จะลบ `Loopback<รหัสนักศึกษา>` บน `10.0.29.101` แม้จะค้างจากการลองส่งเอง และจะลบอีกครั้งเมื่อจบ จึงไม่ต้องลบเองก่อนตรวจ ระบบไม่ลบ interface ชื่ออื่น ห้ามใช้ IP ในช่วง `192.0.2.128/27` สำหรับการทดลองของตน เพราะสงวนไว้ให้ Live test; bot ยังต้องรองรับคำขอที่ grader ส่งในช่วงนี้
+
 ## บัญชี Webex สองบัญชีของนักศึกษา
 
 สมมตินักศึกษารหัส **66070123**:

@@ -3,7 +3,12 @@
 ## Preparation
 Start Docker services, check /health through the external HTTPS URL,
 and confirm the Webex webhook is active for the correct room and bot.
-Use a permitted router and a dedicated test interface.
+Use a permitted router and a dedicated test interface. Do not use
+`192.0.2.128/27` for your own manual Loopback addresses; this range is
+reserved for official Live requests. Before official Live, the grader
+deletes `Loopback<student-id>` on `10.0.29.101` if it exists, regardless
+of its description, then cleans up the same interface after testing.
+Starting `grade` authorizes this reset. Other interfaces are not deleted.
 Each YAML request must be attached in the same message as a real bot mention.
 
 ## Test sequence

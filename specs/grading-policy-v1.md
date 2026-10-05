@@ -75,7 +75,17 @@ refunds the attempt.
 Live coverage includes YAML validation, status found/not_found, plan
 create/no_change/update, apply with independent router-state verification,
 delete/repeated delete, and supported RESTCONF, NETCONF, Ansible, and
-Netmiko/TextFSM operations. The runner cleans up its student-owned interface.
+Netmiko/TextFSM operations.
+
+Starting `grade` authorizes the runner to delete and recreate only
+`Loopback<student-id>` on router `10.0.29.101`. It removes that interface
+before Live even if manual testing left a different description, and removes
+it again after Live. Other interface names are never cleaned up. The grade
+acceptance message also tells the student about this reset.
+
+Official Live /32 addresses come from `192.0.2.128/27`. Students must not
+use this range for their own manual configurations. Student bots must still
+accept Live requests from the grader using this range.
 
 Deploy the bot using Docker Compose and keep it available for grading.
 The instructor tests it through Webex mentions and YAML attachments.
