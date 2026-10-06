@@ -168,7 +168,7 @@ desired:
     name: Loopback66070123
 ```
 
-**ไฟล์สำหรับลองส่ง:** [03-status-not-found.yaml](sample-tests/webex-manual/03-status-not-found.yaml)
+**ไฟล์สำหรับลองส่ง:** [03-status-not-found.yaml](sample-tests/webex-manual/03-status-not-found.yaml) ควรแก้ไขให้เป็น `Loopback<เลขประจำตัวนักศึกษา>` จะได้ไม่ซ้ำกับคนอื่น
 
 **bot ควรตอบ:**
 
@@ -215,6 +215,7 @@ desired:
   }
 }
 ```
+**ควรเปลี่ยนเป็น IP ที่ไม่ซ้ำกับที่มีอยู่แล้วบน Router และห้ามใช้ IP ที่สงวนไว้สำหรับการทดสอบที่กำหนดในด้านล่างของเอกสารนี้
 
 **อ่านผล `plan`:** `name: Loopback66070123` ใน YAML ใช้ระบุ interface เป้าหมาย จึงไม่ใส่ `name` หรือ `interface` ใน `changes` ค่า `changes` แสดงเฉพาะ `ipv4`, `description` และ `admin_state` ที่ต้องจัดการ กรณี `create` จะแสดงค่า `to` ของทั้งสามรายการ; กรณี `update` จะแสดงเฉพาะค่าที่ต่าง; ถ้าค่าตรงกันทั้งหมดจะได้ `operation: no_change` และ `changes: {}`
 
@@ -247,7 +248,7 @@ desired:
 {"status":"ok","result":"applied"}
 ```
 
-**ถ้า IP นี้ถูกใช้บน interface อื่นแล้ว:** Router อาจปฏิเสธคำสั่ง และ bot ตอบดังนี้ (หากนักศึกษาทดลองเอง ควรเปลี่ยน IP เป็นค่าอื่น จะได้ไม่ซ้ากัน)
+**ถ้า IP นี้ถูกใช้บน interface อื่น บน Router แล้ว:** Router อาจปฏิเสธคำสั่ง และ bot ตอบดังนี้ (หากนักศึกษาทดลองเอง ควรเปลี่ยน IP เป็นค่าอื่น จะได้ไม่ซ้ากัน)
 
 ```json
 {"status":"error","result":"backend_failed"}
