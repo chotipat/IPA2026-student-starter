@@ -4,4 +4,4 @@ method: restconf
 action: status
 desired:
   interface:
-    name: Loopback123
+    name: Loopback66070123

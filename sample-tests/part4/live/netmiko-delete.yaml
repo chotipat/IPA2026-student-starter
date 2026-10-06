@@ -4,4 +4,4 @@ method: netmiko-textfsm
 action: delete
 desired:
   interface:
-    name: Loopback123
+    name: Loopback66070123

@@ -5,6 +5,6 @@ action: apply
 desired:
   interface:
     name: Loopback66070123
-    ipv4: 172.23.123.1/32
+    ipv4: 172.23.123.2/32
     description: IPA2026-66070123
     admin_state: up

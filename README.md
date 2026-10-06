@@ -94,6 +94,8 @@ desired:
 
 ตัวอย่างสมมติว่า `Loopback66070123` เป็น interface ที่นักศึกษาได้รับอนุญาตให้ใช้บน `10.0.29.101` ก่อนทดลองต้องเปลี่ยน router, interface และ IP เป็นค่าที่ตนได้รับมอบหมาย **ห้ามลบ interface ของผู้อื่น**
 
+**ก่อนส่งไฟล์ตัวอย่าง:** เปลี่ยน `66070123` ในชื่อ interface และ description เป็นรหัสของตน และใช้ IP ที่ได้รับมอบหมายและยังไม่ถูกใช้บน router ค่า `172.23.123.1/32` ของตัวอย่างเดิมถูก `Loopback123` ใช้อยู่แล้ว; ชุดนี้จึงแสดง `172.23.123.2/32` เพื่อไม่ชนกับค่านั้น หาก IP ที่เลือกถูกใช้อยู่ `apply` อาจตอบ `backend_failed`
+
 ไฟล์ YAML ของตัวอย่างข้อ 2–10 อยู่ใน [sample-tests/webex-manual/](sample-tests/webex-manual/) สำหรับแนบส่งให้ bot ทีละไฟล์ตามลำดับ ไฟล์ชุดนี้ใช้ลองผ่าน Webex ด้วยมือ ไม่ได้ถูกรันโดย pytest; ส่วน public cases ที่ pytest ใช้อยู่ในโฟลเดอร์ `cases/` และ `fixtures/`
 
 ### เลือก `method` และ `action` ให้เข้าคู่กัน
@@ -192,7 +194,7 @@ action: plan
 desired:
   interface:
     name: Loopback66070123
-    ipv4: 172.23.123.1/32
+    ipv4: 172.23.123.2/32
     description: IPA2026-66070123
     admin_state: up
 ```
@@ -207,7 +209,7 @@ desired:
   "result": "planned",
   "operation": "create",
   "changes": {
-    "ipv4": {"to": "172.23.123.1/32"},
+    "ipv4": {"to": "172.23.123.2/32"},
     "description": {"to": "IPA2026-66070123"},
     "admin_state": {"to": "up"}
   }
@@ -216,7 +218,7 @@ desired:
 
 **อ่านผล `plan`:** `name: Loopback66070123` ใน YAML ใช้ระบุ interface เป้าหมาย จึงไม่ใส่ `name` หรือ `interface` ใน `changes` ค่า `changes` แสดงเฉพาะ `ipv4`, `description` และ `admin_state` ที่ต้องจัดการ กรณี `create` จะแสดงค่า `to` ของทั้งสามรายการ; กรณี `update` จะแสดงเฉพาะค่าที่ต่าง; ถ้าค่าตรงกันทั้งหมดจะได้ `operation: no_change` และ `changes: {}`
 
-**หลังส่ง:** Interface **ยังไม่มี** `restconf` ใช้กับ `plan` ได้ แต่ `plan` เพียงบอกว่าจะทำอะไร ไม่เปลี่ยน router
+**หลังส่ง:** Interface **ยังไม่มี** `restconf` ใช้กับ `plan` ได้ แต่ `plan` เพียงบอกว่าจะทำอะไร ไม่เปลี่ยน router `planned` + `create` หมายถึง interface ชื่อนี้ยังไม่มี; `plan` ไม่ตรวจว่า IP ใน YAML ถูกใช้โดย interface อื่นแล้วหรือไม่ จึงยังยืนยันไม่ได้ว่า `apply` จะสำเร็จ
 
 ### 5. `apply`: สร้าง interface จริง
 
@@ -232,20 +234,28 @@ action: apply
 desired:
   interface:
     name: Loopback66070123
-    ipv4: 172.23.123.1/32
+    ipv4: 172.23.123.2/32
     description: IPA2026-66070123
     admin_state: up
 ```
 
 **ไฟล์สำหรับลองส่ง:** [05-apply-create.yaml](sample-tests/webex-manual/05-apply-create.yaml)
 
-**bot ควรตอบ:**
+**bot ควรตอบเมื่อสร้างสำเร็จ:**
 
 ```json
 {"status":"ok","result":"applied"}
 ```
 
-**หลังส่ง:** Router ควรมี interface ตาม YAML เพราะ `restconf` ใช้กับ `apply` ได้ และ `apply` เป็นคำสั่งเปลี่ยน router จริง
+**ถ้า IP นี้ถูกใช้บน interface อื่นแล้ว:** Router อาจปฏิเสธคำสั่ง และ bot ตอบดังนี้ (ตัวอย่างเดิมที่ใช้ `172.23.123.1/32` พบผลนี้จริง เพราะ `Loopback123` ใช้ IP นั้นอยู่)
+
+```json
+{"status":"error","result":"backend_failed"}
+```
+
+`backend_failed` เป็นข้อความรวมสำหรับข้อผิดพลาดจาก backend จึงสรุปจากข้อความนี้อย่างเดียวไม่ได้ว่า IP ซ้ำ ให้ตรวจว่า IP ที่เลือกยังว่าง และเปลี่ยนเป็น IP ที่ได้รับมอบหมายก่อนลอง `apply` ใหม่ หากได้ `backend_failed` ให้ส่ง `status` ตรวจสถานะจริงก่อน ไม่ควรสมมติว่าสร้างสำเร็จ
+
+**หลังส่งเมื่อสำเร็จ:** Router ควรมี interface ตาม YAML เพราะ `restconf` ใช้กับ `apply` ได้ และ `apply` เป็นคำสั่งเปลี่ยน router จริง
 
 **นักศึกษาตรวจผลอย่างไร:** ส่ง **ข้อความ Webex ใหม่อีกหนึ่งครั้ง** โดยแนบ YAML `status` ในตัวอย่างที่ 6 bot จะตอบคำขอใหม่นั้นอีกหนึ่งครั้ง ไม่ได้ส่ง `status` อัตโนมัติจากคำขอ `apply`
 
@@ -275,7 +285,7 @@ desired:
   "result": "found",
   "interface": {
     "name": "Loopback66070123",
-    "ipv4": "172.23.123.1/32",
+    "ipv4": "172.23.123.2/32",
     "description": "IPA2026-66070123",
     "admin_state": "up"
   }
@@ -298,7 +308,7 @@ action: plan
 desired:
   interface:
     name: Loopback66070123
-    ipv4: 172.23.123.1/32
+    ipv4: 172.23.123.2/32
     description: IPA2026-66070123
     admin_state: up
 ```
