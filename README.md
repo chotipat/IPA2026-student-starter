@@ -240,8 +240,6 @@ desired:
     admin_state: up
 ```
 
-**ควรเปลี่ยนเป็น `Loopback<student-id>` และ IP ให้ไม่ซ้ำกับที่มีอยู่แล้วบน Router และห้ามใช้ IP ที่สงวนไว้สำหรับการทดสอบที่กำหนดในด้านล่างของเอกสารนี้**
-
 **ไฟล์สำหรับลองส่ง:** [05-apply-create.yaml](sample-tests/webex-manual/05-apply-create.yaml)
 
 **bot ควรตอบเมื่อสร้างสำเร็จ:**
