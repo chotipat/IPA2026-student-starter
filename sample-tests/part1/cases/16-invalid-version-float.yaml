@@ -1,0 +1,6 @@
+target: core
+request: 16-invalid-version-float.yaml
+
+expected:
+  status: error
+  result: invalid_version

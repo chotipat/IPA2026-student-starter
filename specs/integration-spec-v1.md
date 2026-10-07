@@ -103,7 +103,7 @@ Students may use a different deployment arrangement with the same behavior
 required for request processing and a documented way to update registration.
 
 ## Validation
-The starter has 84 public tests: 58 for Parts 1–3 and 24 for Part 4.
+The starter has 88 public tests: 64 for Parts 1–3 and 24 for Part 4.
 Mock tests do not require bot credentials or live routers.
 Live testing uses the student's own bot in IPA2026 Exam Room and router access to 10.0.29.101. Manual testing uses IPA2026 and an assigned router in 10.0.29.102–10.0.29.105.
 See live-test-part4.md for the end-to-end procedure.

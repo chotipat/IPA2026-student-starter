@@ -38,6 +38,32 @@ the same functions.
 Each YAML file is a complete, stateless request. The program must not depend
 on a previous request.
 
+## YAML validation precedence
+
+After the Webex mention and attachment checks above, parse YAML. A parse error
+or a YAML root that is not a mapping returns `invalid_yaml`. For a mapping,
+check the following in order and return the **first** applicable error:
+
+1. `version`: it must be the YAML integer `1`. A missing version or any
+   other type/value returns `invalid_version`. In particular, `"1"`
+   (string), `1.0` (float), and `true` (boolean) are invalid.
+2. `router`: `missing_router`, then `invalid_router` if it is not one of
+   the allowed router addresses.
+3. `method`: `missing_method`, then `invalid_method` if unknown.
+4. `action`: `missing_action`, then `invalid_action` if unsupported by
+   the selected method.
+5. `desired`, `desired.interface`, and `desired.interface.name`:
+   `missing_desired`, `missing_interface`, or `missing_interface_name`.
+6. For `plan` and `apply` only: `missing_ipv4`,
+   `missing_description`, `missing_admin_state`, then
+   `invalid_admin_state`.
+
+For example, a request with `version: 2` and no `router` returns
+`invalid_version`; one with a valid version but no router and no method
+returns `missing_router`. Do not dispatch a request that fails validation.
+For `status`, ignore any supplied `ipv4`, `description`, or
+`admin_state` values as specified below.
+
 ## Request
 
 Example `apply` request:

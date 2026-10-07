@@ -1,0 +1,6 @@
+target: core
+request: 14-invalid-version-string.yaml
+
+expected:
+  status: error
+  result: invalid_version

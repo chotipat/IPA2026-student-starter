@@ -1,0 +1,7 @@
+version: true
+router: 10.0.29.101
+method: restconf
+action: status
+desired:
+  interface:
+    name: Loopback123

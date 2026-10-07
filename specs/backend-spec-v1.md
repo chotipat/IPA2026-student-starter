@@ -65,9 +65,40 @@ for `not_found`, before calling `build_plan()`.
 
 Each backend exposes only the operations appropriate for that technology.
 
-The signatures below are the public backend contract. Optional injected
-transport/runner arguments used internally for testing are not part of the
-student-facing contract.
+The two required arguments below are used by the dispatcher and Live
+requests. The starter stubs also expose an optional injected callable for each
+operation. Those optional parameters **are part of the public test contract**:
+public tests pass fake transport/runner functions so no router is contacted.
+
+| Backend operation | Optional parameter | Callable receives |
+|---|---|---|
+| RESTCONF status/plan | `http_get` | `http_get(url)`; returns a response with `status_code` and `json()` |
+| RESTCONF apply | `http_put` | `http_put(url, json=payload)`; returns a response with `status_code` |
+| NETCONF status/plan | `netconf_get_config` | `netconf_get_config(router, filter_xml)`; returns XML text |
+| NETCONF apply | `netconf_edit_config` | `netconf_edit_config(router, config_xml)` |
+| Ansible apply | `run_playbook` | `run_playbook(variables)` |
+| Netmiko/TextFSM status | `netmiko_get` | `netmiko_get(router, interface_name)`; returns `(ip_info, descriptions)` |
+| Netmiko/TextFSM delete | `netmiko_delete` | `netmiko_delete(router, interface_name)`; returns `"deleted"` or `"not_found"` |
+
+When an optional callable is omitted, use a real transport/runner. Keep the
+same result and error contract for both paths. The injected fakes in the
+public tests raise Python `PermissionError`, `ConnectionError`, and
+`RuntimeError`; map them to `authentication_failed`,
+`connection_failed`, and `backend_failed`, respectively.
+
+Real libraries have their own exception classes, so catching only Python's
+built-in `ConnectionError` is insufficient. Normalize failures from the real
+transport before returning a backend response. For example, Requests
+`requests.exceptions.Timeout` and `requests.exceptions.ConnectionError`
+mean `connection_failed` (the latter is **not** a subclass of the built-in
+`ConnectionError`); HTTP 401/403 means `authentication_failed`.
+For ncclient, authentication failures map to `authentication_failed`,
+SSH/session connection failures to `connection_failed`, and RPC errors
+to `backend_failed`. For Netmiko, authentication and timeout exceptions map
+to those first two codes, while TextFSM parsing failures map to
+`backend_failed`. For Ansible, rejected credentials, unreachable hosts, and
+other playbook failures map to the same three categories. Equivalent exceptions
+from another implementation should follow the error meanings below.
 
 ### RESTCONF
 

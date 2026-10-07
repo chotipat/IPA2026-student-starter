@@ -1,0 +1,6 @@
+target: core
+request: 15-invalid-version-bool.yaml
+
+expected:
+  status: error
+  result: invalid_version

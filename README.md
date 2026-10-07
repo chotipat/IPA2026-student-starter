@@ -416,7 +416,7 @@ desired:
 - ตัวอย่าง: `tests/test_part1.py` อ่าน `sample-tests/part1/cases/`; `tests/test_part1_mentions.py` ตรวจ mention และกรณีไม่แนบไฟล์ที่เขียนไว้ใน Python โดยตรง
 - การเพิ่มกรณีทดสอบช่วยตรวจงานของตน **ไม่เพิ่มคะแนนโดยตรง** เพราะการตรวจจริงใช้ tests และ cases ของผู้สอน
 
-ติดตั้ง dependencies แล้วรัน public tests ซึ่งมี 84 กรณี:
+ติดตั้ง dependencies แล้วรัน public tests ซึ่งมี 88 กรณี:
 
 ```bash
 python3 -m venv .venv
@@ -467,11 +467,11 @@ bot นักศึกษาต้องเป็นสมาชิกทั้�
 ```mermaid
 flowchart TD
     Push["นักศึกษา push งานไปที่ main"] --> Repo["repo นักศึกษาบน GitHub"]
-    Repo --> StudentCI["Student CI รันอัตโนมัติ<br/>public 84 กรณี + build + ตรวจ HTTP ใน image"]
+    Repo --> StudentCI["Student CI รันอัตโนมัติ<br/>public 88 กรณี + build + ตรวจ HTTP ใน image"]
 
     Grade["นักศึกษาสั่ง grade ใน Webex"] --> Reference["IPA2026-Reference รับคำสั่ง"]
     Reference --> SHA["grader อ่าน commit ล่าสุดของ main<br/>จาก repo ที่ลงทะเบียน"]
-    SHA --> OfficialCI["เริ่ม Instructor GitHub Actions ที่ SHA นี้<br/>public + hidden 141 กรณี + build + ตรวจ HTTP ใน image"]
+    SHA --> OfficialCI["เริ่ม Instructor GitHub Actions ที่ SHA นี้<br/>public + hidden 145 กรณี + build + ตรวจ HTTP ใน image"]
     OfficialCI --> Ready{"tests จบและ build ผ่าน?"}
     Ready -- "ไม่" --> NoLive["ข้าม Live<br/>แจ้งผลตามสาเหตุ"]
     Ready -- "ใช่" --> Reset["รีเซ็ต Loopback ของรหัสที่ตรวจ<br/>บน 10.0.29.101"]
@@ -485,9 +485,9 @@ flowchart TD
 
 `push` ทำให้ **Student CI** รันเอง แต่ยังไม่เริ่มการตรวจคะแนนของผู้สอน หลัง `register` ผูก repo กับ bot แล้ว นักศึกษาอาจใช้ `verify` เช็ก Student CI ของ commit ล่าสุดและลองถาม bot แบบไม่แนบ YAML พร้อมไฟล์ YAML ที่ตั้ง version ผิดโดยตั้งใจ โดยไม่ใช้สิทธิส่งตรวจ **เมื่อสั่ง `grade` ใน Webex เท่านั้น** `IPA2026-Reference` จึงอ่าน commit ล่าสุดของ `main` จาก repo ที่ลงทะเบียนและเริ่ม official CI หาก tests จบและ build ผ่าน จึงเริ่ม Live โดยส่งคำขอผ่าน Webex ไปยัง bot นักศึกษา และ grader อ่าน router เองเพื่อตรวจผลจริง
 
-- **Student CI**: workflow ที่ให้มาทำงานหลัง push `main` รัน public tests, build service `webhook` และตรวจ HTTP `/health` กับ `/webhook` ภายใน image โดยไม่ใช้ token ดูผลใน repo ของตนที่ **Actions → Student CI → run ของ commit ล่าสุด** ขั้น **Run public tests** แสดงจำนวนที่ผ่าน/ไม่ผ่านและรายละเอียดกรณีที่ไม่ผ่าน เช่น `84 passed`; ขั้น **Build webhook image** และ **Check webhook inside built image** แสดงผลผ่าน/ไม่ผ่านแยกกัน หากขั้นก่อนหน้าไม่ผ่าน ขั้นถัดไปจะถูกข้าม Student CI ไม่แสดงคะแนนทางการ CI/Live และไม่ส่งผลไปห้อง Webex อัตโนมัติ
-- **การตรวจ CI จริง**: เมื่อสั่ง `grade` ผู้สอนดึง **commit ล่าสุดของ `main`** ไปรัน public และ hidden tests รวม 141 กรณี พร้อมตรวจ Docker build และ HTTP ภายใน image คะแนน CI คำนวณจาก tests ตามน้ำหนัก Parts 1–4 ในตาราง หาก build หรือการตรวจ image ไม่ผ่าน จะบันทึกคะแนน CI ที่ tests ทำได้และ **ไม่ตรวจ Live**
-- ขั้นรัน **141 tests จำกัดเวลา 120 วินาที** หากหมดเวลาก่อนมีผลครบ จะข้าม Live; เวลา 120 วินาทีนี้ไม่รวม checkout, ติดตั้ง dependencies, build และตรวจ image ซึ่งอยู่ใน workflow เดียวกัน โดย workflow ทั้งงานมีเพดาน 5 นาที
+- **Student CI**: workflow ที่ให้มาทำงานหลัง push `main` รัน public tests, build service `webhook` และตรวจ HTTP `/health` กับ `/webhook` ภายใน image โดยไม่ใช้ token ดูผลใน repo ของตนที่ **Actions → Student CI → run ของ commit ล่าสุด** ขั้น **Run public tests** แสดงจำนวนที่ผ่าน/ไม่ผ่านและรายละเอียดกรณีที่ไม่ผ่าน เช่น `88 passed`; ขั้น **Build webhook image** และ **Check webhook inside built image** แสดงผลผ่าน/ไม่ผ่านแยกกัน หากขั้นก่อนหน้าไม่ผ่าน ขั้นถัดไปจะถูกข้าม Student CI ไม่แสดงคะแนนทางการ CI/Live และไม่ส่งผลไปห้อง Webex อัตโนมัติ
+- **การตรวจ CI จริง**: เมื่อสั่ง `grade` ผู้สอนดึง **commit ล่าสุดของ `main`** ไปรัน public และ hidden tests รวม 145 กรณี พร้อมตรวจ Docker build และ HTTP ภายใน image คะแนน CI คำนวณจาก tests ตามน้ำหนัก Parts 1–4 ในตาราง หาก build หรือการตรวจ image ไม่ผ่าน จะบันทึกคะแนน CI ที่ tests ทำได้และ **ไม่ตรวจ Live**
+- ขั้นรัน **145 tests จำกัดเวลา 120 วินาที** หากหมดเวลาก่อนมีผลครบ จะข้าม Live; เวลา 120 วินาทีนี้ไม่รวม checkout, ติดตั้ง dependencies, build และตรวจ image ซึ่งอยู่ใน workflow เดียวกัน โดย workflow ทั้งงานมีเพดาน 5 นาที
 - **Live test**: เมื่อ CI/build พร้อม ระบบส่ง YAML ผ่าน Webex ไปยัง bot นักศึกษา **ทีละกรณี 20 กรณี** ที่เลือกจากชุด 58 กรณี ตรวจทั้ง JSON ที่ตอบและสถานะจริงบน router คิดเป็น **10 คะแนน** กรณี `apply` ต้องเปลี่ยน router จริง; หลังตรวจระบบ cleanup interface ของการทดสอบ
 
 ใน Live ระบบรอคำตอบจาก bot **10 วินาทีต่อกรณีที่ไม่ต้องติดต่อ router** (ไม่แนบ YAML, YAML ผิดรูปแบบ, version/action ไม่ถูกต้อง) และ **20 วินาทีต่อกรณีที่ต้องอ่านหรือเปลี่ยน router** (`status`, `plan`, `apply`, `delete`) โดยเริ่มนับหลัง Webex ส่งคำขอสำเร็จ หาก bot ไม่ตอบทัน กรณีนั้นไม่ผ่านและระบบหยุดส่งกรณีที่เหลือ โดยนับกรณีที่เหลือว่าไม่ผ่าน เพื่อเปิดคิวให้คนถัดไป การส่งข้อความผ่าน Webex และการอ่าน router ใช้เวลาเพิ่มเติมได้ จึงไม่ใช่เพดานเวลารวมของกรณีหรือ Live ทั้งรอบ หากระบบผู้สอน, Webex หรือ router ขัดข้อง ระบบคืนสิทธิส่งตรวจครั้งนั้น

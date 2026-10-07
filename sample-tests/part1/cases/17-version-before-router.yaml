@@ -1,0 +1,6 @@
+target: core
+request: 17-version-before-router.yaml
+
+expected:
+  status: error
+  result: invalid_version
