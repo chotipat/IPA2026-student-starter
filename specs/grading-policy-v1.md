@@ -11,21 +11,24 @@ Docker build failures, and an unresponsive student bot, consume an attempt.
 Only test results that completed and were recorded count toward CI points.
 
 ## Registration and Webex commands
+IPA2026 is the student manual test room. Use only an assigned router in `10.0.29.102`–`10.0.29.105` there. Router `10.0.29.101` is reserved for official Live grading in IPA2026 Exam Room. Do not send manual YAML tests in the exam room. The student bot must receive mentions in both rooms and reply in the room of each request.
+
 Use a Webex account whose email is `student-id@kmitl.ac.th`. Add one student bot
-with an eight-digit student ID as its exact display name to the IPA2026
-room. Underground IPA is reserved for instructor testing. Keep its webhook and tunnel available for grading. Put the project and
+with an eight-digit student ID as its exact display name to both IPA2026 and IPA2026 Exam Room. Keep its webhook and tunnel available in both rooms for grading. Put the project and
 `compose.yaml` at the repository root, and make the `main` branch readable to
 the instructor (grant access if the repository is private).
 
-In the IPA2026 room, choose a real @mention of the IPA2026-Reference bot from Webex's
+In IPA2026 Exam Room, choose a real @mention of the IPA2026-Reference bot from Webex's
 suggestions, then type one of these commands. A plain-text bot name is not a
 mention. Students do not include their student ID in these commands:
 
 - `register https://github.com/owner/repository`: record the repository and
   find exactly one room bot whose display name matches the student's ID.
 - `verify`: check registration, the readable latest `main` SHA, successful
-  Student CI for that exact SHA, and a no-YAML live smoke response from the
-  registered bot. This is optional, free, and does not start a GitHub Actions
+  Student CI for that exact SHA, and two smoke responses from the
+  registered bot in the exam room: `no_yaml` without an attachment and
+  `invalid_version` for a YAML attachment. The YAML has an invalid version
+  and cannot change a router. This is optional, free, and does not start a GitHub Actions
   run or consume a grading attempt. Repeated checks have a 30-second cooldown.
   If Student CI has not passed, the live smoke is skipped. When other Webex
   commands are waiting, verify yields immediately so it does not hold their queue.
@@ -34,7 +37,7 @@ mention. Students do not include their student ID in these commands:
 - `score`: show the best Take-home score out of 20, latest result, and attempts used/remaining.
   This is free. Queued submissions also show their current queue position.
 
-The instructor may use `queue` in Underground IPA or IPA2026 to see the
+The instructor may use `queue` in IPA2026 Exam Room to see the
 student IDs and submission numbers currently running in CI or Live, and those
 waiting in each queue. This command does not consume an attempt.
 
@@ -89,13 +92,15 @@ accept Live requests from the grader using this range.
 
 Deploy the bot using Docker Compose and keep it available for grading.
 The instructor tests it through Webex mentions and YAML attachments.
-Live requests and JSON replies are visible in the IPA2026 room.
-Sampling does not hide YAML attachments from other room members.
+Live requests and JSON replies are visible in IPA2026 Exam Room.
+Sampling does not hide YAML attachments from other exam room members.
 No screenshots, Docker command output, or manual live logs are submitted.
 
 ## Final score
 The final exam uses CI 10 + Live 10 + MCQ 10 = 30 points. MCQ is a separate
-closed-book assessment kept outside this grading system. The grading bot and
+assessment kept outside this grading system. During the MCQ assessment, the
+only permitted reference is the IPA2026-student-starter repository, including
+its README, specs, code, and public tests. The grading bot and
 SQLite report only the Take-home CI + Live result out of 20. The instructor
 combines MCQ points with Take-home points outside this system.
 Use the highest Take-home total from a single valid grading attempt

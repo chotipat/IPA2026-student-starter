@@ -63,6 +63,16 @@ def test_attachment_processed_replied_and_cleaned():
     ]
     assert not paths[0].exists()
 
+    # The same webhook must reply to whichever room delivered the mention.
+    client.message["roomId"] = "ROOM2"
+    assert handler.handle_event(event()) == {
+        "status": "ok", "result": "applied"
+    }
+    assert client.replies[-1] == (
+        "ROOM2", {"status": "ok", "result": "applied"}
+    )
+    assert not paths[-1].exists()
+
 
 def test_own_event_skipped_before_api_call():
     client = FakeClient()

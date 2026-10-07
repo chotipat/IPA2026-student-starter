@@ -69,11 +69,11 @@ sequenceDiagram
 
 YAML หนึ่งไฟล์คือ **หนึ่งคำขอที่สมบูรณ์ในตัวเอง** มี `version`, `router`, `method`, `action` และ `desired.interface` โปรแกรมต้องอ่านไฟล์ ตรวจรูปแบบและตรวจว่า backend รองรับ action นั้น ก่อนทำงานกับ router
 
-ตัวอย่างนี้ใช้รหัสสมมติ `66070123` และ interface เดียวกันเพื่อให้เห็นลำดับการทำงาน **ก่อนทดลองจริงให้เปลี่ยน router และ interface เป็นค่าที่ตนได้รับมอบหมาย; สำหรับ `plan`/`apply` ให้ใส่ `ipv4`, `description`, `admin_state` ครบตาม spec**
+ตัวอย่างนี้ใช้รหัสสมมติ `66070123` และ interface เดียวกันเพื่อให้เห็นลำดับการทำงาน **ก่อนทดลองจริงให้เปลี่ยน router เป็นตัวที่ได้รับมอบหมายในช่วง `10.0.29.102`–`10.0.29.105` และเปลี่ยน interface เป็นของตน; สำหรับ `plan`/`apply` ให้ใส่ `ipv4`, `description`, `admin_state` ครบตาม spec**
 
 ```yaml
 version: 1
-router: 10.0.29.101
+router: 10.0.29.102
 method: restconf
 action: status
 desired:
@@ -92,9 +92,9 @@ desired:
 
 ใช้บัญชี Webex ของนักศึกษา @mention **bot ของตัวเองจริง ๆ** และแนบ YAML หนึ่งไฟล์ในข้อความเดียวกัน แต่ละตัวอย่างด้านล่างคือ **ข้อความ Webex คนละครั้ง** ยกเว้นตัวอย่างที่ 1 ซึ่งจงใจไม่แนบไฟล์
 
-ตัวอย่างสมมติว่า `Loopback66070123` เป็น interface ที่นักศึกษาได้รับอนุญาตให้ใช้บน `10.0.29.101` ก่อนทดลองต้องเปลี่ยน router, interface และ IP เป็นค่าที่ตนได้รับมอบหมาย **ห้ามลบ interface ของผู้อื่น**
+ตัวอย่างสมมติว่า `Loopback66070123` เป็น interface ที่นักศึกษาได้รับอนุญาตให้ใช้บน `10.0.29.102` ก่อนทดลองต้องเปลี่ยน router เป็นตัวที่ได้รับมอบหมายในช่วง `10.0.29.102`–`10.0.29.105` รวมทั้ง interface และ IP เป็นค่าของตน **ห้ามลบ interface ของผู้อื่น**
 
-**ก่อนส่งไฟล์ตัวอย่าง:** เปลี่ยน `66070123` ในชื่อ interface และ description เป็นรหัสของตน และใช้ IP ที่ได้รับมอบหมายและยังไม่ถูกใช้บน router ค่า `172.23.123.1/32` ของตัวอย่างเดิมถูก `Loopback123` ใช้อยู่แล้ว; ชุดนี้จึงแสดง `172.23.123.2/32` เพื่อไม่ชนกับค่านั้น หาก IP ที่เลือกถูกใช้อยู่ `apply` อาจตอบ `backend_failed`
+**ก่อนส่งไฟล์ตัวอย่าง:** เปลี่ยน `66070123` ในชื่อ interface และ description เป็นรหัสของตน และเปลี่ยน `172.23.123.2/32` เป็น IP ที่ได้รับมอบหมายและยังไม่ถูกใช้บน router หาก IP ซ้ำ `apply` อาจตอบ `backend_failed`
 
 ไฟล์ YAML ของตัวอย่างข้อ 2–10 อยู่ใน [sample-tests/webex-manual/](sample-tests/webex-manual/) สำหรับแนบส่งให้ bot ทีละไฟล์ตามลำดับ ไฟล์ชุดนี้ใช้ลองผ่าน Webex ด้วยมือ ไม่ได้ถูกรันโดย pytest; ส่วน public cases ที่ pytest ใช้อยู่ในโฟลเดอร์ `cases/` และ `fixtures/`
 
@@ -160,7 +160,7 @@ desired: [interface
 
 ```yaml
 version: 1
-router: 10.0.29.101
+router: 10.0.29.102
 method: restconf
 action: status
 desired:
@@ -188,7 +188,7 @@ desired:
 
 ```yaml
 version: 1
-router: 10.0.29.101
+router: 10.0.29.102
 method: restconf
 action: plan
 desired:
@@ -229,7 +229,7 @@ desired:
 
 ```yaml
 version: 1
-router: 10.0.29.101
+router: 10.0.29.102
 method: restconf
 action: apply
 desired:
@@ -270,7 +270,7 @@ desired:
 
 ```yaml
 version: 1
-router: 10.0.29.101
+router: 10.0.29.102
 method: restconf
 action: status
 desired:
@@ -305,7 +305,7 @@ desired:
 
 ```yaml
 version: 1
-router: 10.0.29.101
+router: 10.0.29.102
 method: restconf
 action: plan
 desired:
@@ -334,7 +334,7 @@ desired:
 
 ```yaml
 version: 1
-router: 10.0.29.101
+router: 10.0.29.102
 method: restconf
 action: delete
 desired:
@@ -360,7 +360,7 @@ desired:
 
 ```yaml
 version: 1
-router: 10.0.29.101
+router: 10.0.29.102
 method: netmiko-textfsm
 action: delete
 desired:
@@ -386,7 +386,7 @@ desired:
 
 ```yaml
 version: 1
-router: 10.0.29.101
+router: 10.0.29.102
 method: netmiko-textfsm
 action: delete
 desired:
@@ -434,11 +434,22 @@ python -m pytest -q tests
 1. นำ Starter ไปสร้าง **GitHub repo งานของตนเอง** ทำงานบน branch `main` หาก repo เป็น private ต้องให้ผู้สอนอ่านได้
 2. ทำ Parts 1–4 ตาม spec รัน public tests ระหว่างทำ
 3. ใช้ `Dockerfile`, `compose.yaml` และ `.github/workflows/student-ci.yaml` ที่ให้มา ตรวจว่า public tests, `docker compose build webhook` และ `python scripts/check_webhook_image.py` ผ่าน แล้วปรับ deployment ของตนตาม spec ไม่ต้อง publish image ไป Docker Hub
-4. สร้าง Webex bot ของตน ตั้ง **ชื่อแสดงเป็นรหัสนักศึกษา 8 หลัก** เพิ่ม bot เข้าห้อง **IPA2026 ก่อนลงทะเบียน** แล้วเปิดโปรแกรม, webhook และ tunnel ให้พร้อมรับข้อความ
-5. ลอง @mention bot ของตนพร้อม YAML หนึ่งไฟล์ ทดลอง `status → plan → apply → status → delete → delete ซ้ำ` บน **interface ที่ตนได้รับมอบหมายเท่านั้น** `plan` ไม่แก้ router; `apply` และ `delete` แก้สถานะจริง ดู [ชุด YAML สำหรับลองส่งทีละข้อ](sample-tests/webex-manual/) ตัวอย่างพื้นฐานใน `sample-tests/part4/live/` และขั้นตอนใน `specs/live-test-part4.md`
-6. Push งานขึ้น `main` รอ Student CI ของ commit ล่าสุดผ่าน แล้วจึง `register → verify → grade → score`
+4. สร้าง Webex bot ของตน ตั้ง **ชื่อแสดงเป็นรหัสนักศึกษา 8 หลัก** เพิ่ม bot เข้าทั้งห้อง **IPA2026** และ **IPA2026 Exam Room** ก่อนลงทะเบียน แล้วเปิดโปรแกรม, webhook และ tunnel ให้พร้อมรับข้อความ
+5. ในห้อง **IPA2026** ลอง @mention bot ของตนพร้อม YAML หนึ่งไฟล์ ทดลอง `status → plan → apply → status → delete → delete ซ้ำ` บน router ที่ได้รับมอบหมายในช่วง `10.0.29.102`–`10.0.29.105` และ **interface ของตนเท่านั้น** `plan` ไม่แก้ router; `apply` และ `delete` แก้สถานะจริง ดู [ชุด YAML สำหรับลองส่งทีละข้อ](sample-tests/webex-manual/) ตัวอย่างพื้นฐานใน `sample-tests/part4/live/` และขั้นตอนใน `specs/live-test-part4.md`
+6. Push งานขึ้น `main` รอ Student CI ของ commit ล่าสุดผ่าน แล้วไปห้อง **IPA2026 Exam Room** เพื่อ `register → verify → grade → score` โดย @mention `IPA2026-Reference` ที่นั่น
 
-เมื่อสั่ง `grade` ระบบจะแจ้งว่า ก่อน Live จะลบ `Loopback<รหัสนักศึกษา>` บน `10.0.29.101` แม้จะค้างจากการลองส่งเอง และจะลบอีกครั้งเมื่อจบ จึงไม่ต้องลบเองก่อนตรวจ ระบบไม่ลบ interface ชื่ออื่น ห้ามใช้ IP ในช่วง `192.0.2.128/27` สำหรับการทดลองของตน เพราะสงวนไว้ให้ Live test; bot ยังต้องรองรับคำขอที่ grader ส่งในช่วงนี้
+เมื่อสั่ง `grade` ระบบจะแจ้งว่า ก่อน Live จะลบ `Loopback<รหัสนักศึกษา>` บน `10.0.29.101` หากมีค้างจากการตรวจครั้งก่อน และจะลบอีกครั้งเมื่อจบ จึงไม่ต้องลบเองก่อนตรวจ ระบบไม่ลบ interface ชื่ออื่น ห้ามใช้ IP ในช่วง `192.0.2.128/27` สำหรับการทดลองของตน เพราะสงวนไว้ให้ Live test; bot ยังต้องรองรับคำขอที่ grader ส่งในช่วงนี้
+
+## ห้องทดลองและห้องสอบ
+
+| ห้อง Webex | ใช้ทำอะไร | Router |
+|---|---|---|
+| **IPA2026** | นักศึกษา @mention bot ของตนพร้อม YAML เพื่อทดลองด้วยมือ | ตัวที่ได้รับมอบหมายในช่วง `10.0.29.102`–`10.0.29.105` |
+| **IPA2026 Exam Room** | @mention `IPA2026-Reference` เพื่อ `register`, `verify`, `grade`, `score`; ผู้ตรวจ @mention bot นักศึกษาสำหรับ Live | `10.0.29.101` เฉพาะ Live |
+
+bot นักศึกษาต้องเป็นสมาชิกทั้งสองห้องและตอบ JSON กลับ **ห้องเดียวกับที่ได้รับคำขอ** อย่ากำหนด room ID เดียวตายตัวใน bot ตรวจว่า webhook ของตนรับ event ในทั้งสองห้องก่อน `verify` ห้องสอบไม่ใช้ลอง YAML เอง เพื่อไม่ให้คำตอบทดลองปนกับ Live test
+
+`verify` ฟรีและไม่ใช้สิทธิส่งตรวจ: ตรวจ main commit, Student CI ของ commit นั้น และส่งข้อความ mention bot นักศึกษา **จากห้องสอบ** โดยไม่แนบ YAML เพื่อรอ `no_yaml` แล้วส่ง YAML ที่มี version ผิดโดยตั้งใจเพื่อรอ `invalid_version` จึงช่วยยืนยันว่า bot รับไฟล์และตอบในห้องสอบได้จริงโดยไม่เปลี่ยน router แต่ยังไม่เทียบเท่า Live ทั้ง 20 กรณี `grade` เท่านั้นที่ตรวจงานเต็มและใช้โควตา
 
 ## บัญชี Webex สองบัญชีของนักศึกษา
 
@@ -449,7 +460,7 @@ python -m pytest -q tests
 | **บัญชีคน** `66070123@kmitl.ac.th` | นักศึกษาใช้พูดคุยใน Webex, ทดลองส่ง YAML ให้ bot ของตน และส่งคำสั่งตรวจให้ `IPA2026-Reference` |
 | **บัญชี bot** ชื่อแสดง `66070123` | เป็นโปรแกรมที่นักศึกษาเขียน รับ YAML และตอบ JSON; ระบบผู้สอนจะส่ง Live test มาหา bot นี้ |
 
-`IPA2026-Reference` เป็น **bot ผู้ตรวจของผู้สอน** ไม่ใช่ bot ที่นักศึกษาต้องเขียน ต้องเพิ่ม bot ของนักศึกษาเข้าห้อง IPA2026 ก่อน `register` และเปิด webhook/tunnel ไว้จนตรวจ Live เสร็จ
+`IPA2026-Reference` เป็น **bot ผู้ตรวจของผู้สอน** ไม่ใช่ bot ที่นักศึกษาต้องเขียน bot นักศึกษาต้องอยู่ **ทั้งสองห้อง** และ webhook ต้องรับ mention จากทั้งสองห้อง: IPA2026 ใช้ทดลองเอง; IPA2026 Exam Room ใช้ให้ผู้สอน `verify` และ `grade` เท่านั้น นักศึกษาไม่ส่ง YAML ทดลองเองในห้องสอบ เปิด webhook/tunnel ไว้จนตรวจ Live เสร็จ
 
 เวลา @mention ต้อง **เลือก bot จากรายการของ Webex จริง** การพิมพ์ `@ชื่อบอต` เป็นข้อความธรรมดาไม่พอ ถ้า mention bot นักศึกษาโดยไม่แนบ YAML ควรได้ `{"status":"error","result":"no_yaml"}`; ถ้าแนบมากกว่าหนึ่งไฟล์ควรได้ `{"status":"error","result":"multiple_attachments"}`
 
@@ -474,7 +485,7 @@ flowchart TD
     Score --> Result
 ```
 
-`push` ทำให้ **Student CI** รันเอง แต่ยังไม่เริ่มการตรวจคะแนนของผู้สอน หลัง `register` ผูก repo กับ bot แล้ว นักศึกษาอาจใช้ `verify` เช็ก Student CI ของ commit ล่าสุดและลองถาม bot แบบไม่แนบ YAML โดยไม่ใช้สิทธิส่งตรวจ **เมื่อสั่ง `grade` ใน Webex เท่านั้น** `IPA2026-Reference` จึงอ่าน commit ล่าสุดของ `main` จาก repo ที่ลงทะเบียนและเริ่ม official CI หาก tests จบและ build ผ่าน จึงเริ่ม Live โดยส่งคำขอผ่าน Webex ไปยัง bot นักศึกษา และ grader อ่าน router เองเพื่อตรวจผลจริง
+`push` ทำให้ **Student CI** รันเอง แต่ยังไม่เริ่มการตรวจคะแนนของผู้สอน หลัง `register` ผูก repo กับ bot แล้ว นักศึกษาอาจใช้ `verify` เช็ก Student CI ของ commit ล่าสุดและลองถาม bot แบบไม่แนบ YAML พร้อมไฟล์ YAML ที่ตั้ง version ผิดโดยตั้งใจ โดยไม่ใช้สิทธิส่งตรวจ **เมื่อสั่ง `grade` ใน Webex เท่านั้น** `IPA2026-Reference` จึงอ่าน commit ล่าสุดของ `main` จาก repo ที่ลงทะเบียนและเริ่ม official CI หาก tests จบและ build ผ่าน จึงเริ่ม Live โดยส่งคำขอผ่าน Webex ไปยัง bot นักศึกษา และ grader อ่าน router เองเพื่อตรวจผลจริง
 
 - **Student CI**: workflow ที่ให้มาทำงานหลัง push `main` รัน public tests, build service `webhook` และตรวจ HTTP `/health` กับ `/webhook` ภายใน image โดยไม่ใช้ token ดูผลใน repo ของตนที่ **Actions → Student CI → run ของ commit ล่าสุด** ขั้น **Run public tests** แสดงจำนวนที่ผ่าน/ไม่ผ่านและรายละเอียดกรณีที่ไม่ผ่าน เช่น `84 passed`; ขั้น **Build webhook image** และ **Check webhook inside built image** แสดงผลผ่าน/ไม่ผ่านแยกกัน หากขั้นก่อนหน้าไม่ผ่าน ขั้นถัดไปจะถูกข้าม Student CI ไม่แสดงคะแนนทางการ CI/Live และไม่ส่งผลไปห้อง Webex อัตโนมัติ
 - **การตรวจ CI จริง**: เมื่อสั่ง `grade` ผู้สอนดึง **commit ล่าสุดของ `main`** ไปรัน public และ hidden tests รวม 141 กรณี พร้อมตรวจ Docker build และ HTTP ภายใน image คะแนน CI คำนวณจาก tests ตามน้ำหนัก Parts 1–4 ในตาราง หาก build หรือการตรวจ image ไม่ผ่าน จะบันทึกคะแนน CI ที่ tests ทำได้และ **ไม่ตรวจ Live**
@@ -499,7 +510,7 @@ python scripts/check_webhook_image.py
 
 เมื่อ push แล้วให้ดูว่า **Student CI ผ่านที่ SHA ล่าสุดของ `main`** ก่อนส่ง `verify` เพราะ `verify` ตรวจผล workflow ชื่อ `student-ci.yaml` ของ SHA นั้นโดยตรง และไม่เริ่ม GitHub Actions ใหม่ให้ หากแก้ไฟล์แล้ว push อีกครั้ง ต้องรอผลของ SHA ใหม่
 
-## ตัวอย่างการส่งตรวจในห้อง IPA2026
+## ตัวอย่างการส่งตรวจในห้อง IPA2026 Exam Room
 
 ตัวอย่างนี้สมมติว่า **บัญชีคน** `66070123@kmitl.ac.th` เพิ่ม bot ชื่อ `66070123` เข้าห้องและเปิดใช้งานแล้ว งานอยู่ที่ `https://github.com/myname/ipa2026-work` ซึ่งเป็น **repo ของนักศึกษาเอง** ให้เปลี่ยน URL ตัวอย่างเป็น URL งานจริงของตน **ห้ามใช้ URL ของ Student Starter**
 
@@ -522,6 +533,8 @@ Repo: myname/ipa2026-work
 การลงทะเบียนไม่ใช้โควตาและไม่รีเซ็ตคะแนน
 ```
 
+Repo หนึ่งผูกกับรหัสนักศึกษาได้เพียงรหัสเดียว แม้เจ้าของเดิมจะเปลี่ยนไปใช้ repo อื่นแล้ว รหัสอื่นก็ลงทะเบียน repo เดิมไม่ได้ หากต้องการเปลี่ยน repo ของตน ให้ส่ง `register` อีกครั้งด้วย URL ใหม่จากบัญชี Webex เดิม ขณะไม่มีงานตรวจค้างอยู่ การเปลี่ยน repo ไม่รีเซ็ตจำนวนครั้งหรือคะแนนที่เคยได้
+
 ### 2. `verify` — ตรวจความพร้อมฟรี
 
 ส่ง:
@@ -536,7 +549,7 @@ Repo: myname/ipa2026-work
 Verify 66070123: พร้อม
 main SHA: 0123456789abcdef0123456789abcdef01234567
 Student CI ที่ SHA นี้: ผ่าน
-Live no-YAML smoke: ผ่าน
+Live no-YAML + YAML smoke: ผ่าน
 ไม่ใช้โควตา และไม่ได้รัน Live 20 กรณี
 ```
 

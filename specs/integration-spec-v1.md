@@ -5,7 +5,7 @@ Connect Parts 1–3 to the student's own Webex bot and deploy with Docker.
 Use the existing YAML schema, response contract and capability matrix.
 
 ## Webex input
-- Add the student's bot to the IPA2026 exam room. Underground IPA is for instructor testing only.
+- Add the student's bot to both IPA2026 (manual testing) and IPA2026 Exam Room (official grading).
 - Set the bot display name to the student's 8-digit student ID.
 - Choose a unique bot username; use its bot email to add it to the room.
 - Select a real @mention of the bot and attach one YAML file in the same message.
@@ -94,8 +94,7 @@ WEBEX_BOT_TOKEN, ROUTER_USER, ROUTER_PASS.
 
 Expose the webhook through a reachable HTTPS URL, for example Cloudflare Tunnel.
 Register a messages/created Webex webhook using the student's Bot Access Token,
-the IPA2026 roomId filter and targetUrl ending in /webhook.
-Update the existing registration when the external URL changes.
+both IPA2026 (manual testing) and IPA2026 Exam Room (official verify/grade) roomId filters, each with targetUrl ending in /webhook. Register a webhook for each room or use a subscription that delivers mentions from both rooms. Update existing registrations when the external URL changes. Reply to the roomId of each incoming request; do not hard-code one reply room.
 A Cloudflare account or purchased domain is not required for the live test.
 
 The instructor reference runs webhook and tunnel as two Compose services.
@@ -104,7 +103,7 @@ Students may use a different deployment arrangement with the same behavior
 required for request processing and a documented way to update registration.
 
 ## Validation
-The starter has 82 public tests: 58 for Parts 1–3 and 24 for Part 4.
+The starter has 84 public tests: 58 for Parts 1–3 and 24 for Part 4.
 Mock tests do not require bot credentials or live routers.
-Live testing uses the student's own bot in IPA2026 and router access.
+Live testing uses the student's own bot in IPA2026 Exam Room and router access to 10.0.29.101. Manual testing uses IPA2026 and an assigned router in 10.0.29.102–10.0.29.105.
 See live-test-part4.md for the end-to-end procedure.
