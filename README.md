@@ -69,16 +69,16 @@ sequenceDiagram
 
 YAML หนึ่งไฟล์คือ **หนึ่งคำขอที่สมบูรณ์ในตัวเอง** มี `version`, `router`, `method`, `action` และ `desired.interface` โปรแกรมต้องอ่านไฟล์ ตรวจรูปแบบและตรวจว่า backend รองรับ action นั้น ก่อนทำงานกับ router
 
-ตัวอย่างนี้ใช้รหัสสมมติ `66070123` และ interface เดียวกันเพื่อให้เห็นลำดับการทำงาน **ก่อนทดลองจริงให้เปลี่ยน router เป็นตัวที่ได้รับมอบหมายในช่วง `10.0.29.102`–`10.0.29.105` และเปลี่ยน interface เป็นของตน; สำหรับ `plan`/`apply` ให้ใส่ `ipv4`, `description`, `admin_state` ครบตาม spec**
+ตัวอย่างด้านล่างใช้ placeholder ที่ **ต้องแก้ก่อนแนบส่งจริง**: `<assigned-router-ip>` คือ router ที่ได้รับมอบหมายในช่วง `10.0.29.102`–`10.0.29.105`, `<student-id>` คือรหัสนักศึกษาของตน และ `<unused-ipv4>` คือ IPv4 ที่เลือกใช้กับ Loopback ของตนและยังไม่ซ้ำบน router นั้น โดยคง `/32` ไว้ คำขอ `plan` และ `apply` ต้องมี `ipv4`, `description`, `admin_state` ครบตาม spec
 
 ```yaml
 version: 1
-router: 10.0.29.102
+router: <assigned-router-ip>
 method: restconf
 action: status
 desired:
   interface:
-    name: Loopback66070123
+    name: Loopback<student-id>
 ```
 
 | Action | ความหมาย | เปลี่ยน router หรือไม่ | ตัวอย่างผล |
@@ -92,9 +92,9 @@ desired:
 
 ใช้บัญชี Webex ของนักศึกษา @mention **bot ของตัวเองจริง ๆ** และแนบ YAML หนึ่งไฟล์ในข้อความเดียวกัน แต่ละตัวอย่างด้านล่างคือ **ข้อความ Webex คนละครั้ง** ยกเว้นตัวอย่างที่ 1 ซึ่งจงใจไม่แนบไฟล์
 
-ตัวอย่างสมมติว่า `Loopback66070123` เป็น interface ที่นักศึกษาได้รับอนุญาตให้ใช้บน `10.0.29.102` ก่อนทดลองต้องเปลี่ยน router เป็นตัวที่ได้รับมอบหมายในช่วง `10.0.29.102`–`10.0.29.105` รวมทั้ง interface และ IP เป็นค่าของตน **ห้ามลบ interface ของผู้อื่น**
+ใช้ `Loopback<student-id>` ของตนบน router ที่ได้รับมอบหมายเท่านั้น **ห้ามลบ interface ของผู้อื่น**
 
-**ก่อนส่งไฟล์ตัวอย่าง:** เปลี่ยน `66070123` ในชื่อ interface และ description เป็นรหัสของตน และเปลี่ยน `172.23.123.2/32` เป็น IP ที่ได้รับมอบหมายและยังไม่ถูกใช้บน router หาก IP ซ้ำ `apply` อาจตอบ `backend_failed`
+**ก่อนส่งไฟล์ตัวอย่างข้อ 3–10:** ดาวน์โหลดแล้วแทน `<assigned-router-ip>`, `<student-id>` และ `<unused-ipv4>` (ถ้ามี) ด้วยค่าของตน ให้ใช้ชื่อ Loopback และ IP เดียวกันตลอดลำดับข้อ 3–10 IP ต้องยังไม่ถูกใช้บน router และอยู่นอกช่วง `192.0.2.128/27` ที่สงวนไว้สำหรับ Live test ไฟล์ที่ยังมี placeholder เป็นเพียงแม่แบบ ห้ามแนบส่งโดยไม่แก้ หาก IP ซ้ำ `apply` อาจตอบ `backend_failed`
 
 ไฟล์ YAML ของตัวอย่างข้อ 2–10 อยู่ใน [sample-tests/webex-manual/](sample-tests/webex-manual/) สำหรับแนบส่งให้ bot ทีละไฟล์ตามลำดับ ไฟล์ชุดนี้ใช้ลองผ่าน Webex ด้วยมือ ไม่ได้ถูกรันโดย pytest; ส่วน public cases ที่ pytest ใช้อยู่ในโฟลเดอร์ `cases/` และ `fixtures/`
 
@@ -154,21 +154,21 @@ desired: [interface
 
 ### 3. `status`: ตรวจเมื่อ interface ยังไม่มี
 
-**ก่อนส่ง:** `Loopback66070123` ยังไม่มีบน router
+**ก่อนส่ง:** `Loopback<student-id>` ยังไม่มีบน router
 
 **ส่ง:**
 
 ```yaml
 version: 1
-router: 10.0.29.102
+router: <assigned-router-ip>
 method: restconf
 action: status
 desired:
   interface:
-    name: Loopback66070123
+    name: Loopback<student-id>
 ```
 
-**ไฟล์สำหรับลองส่ง:** [03-status-not-found.yaml](sample-tests/webex-manual/03-status-not-found.yaml) ควรแก้ไขให้เป็น `Loopback<เลขประจำตัวนักศึกษา>` จะได้ไม่ซ้ำกับคนอื่น
+**ไฟล์สำหรับลองส่ง:** [03-status-not-found.yaml](sample-tests/webex-manual/03-status-not-found.yaml) หลังแทน placeholder เป็นค่าของตนแล้ว
 
 **bot ควรตอบ:**
 
@@ -188,14 +188,14 @@ desired:
 
 ```yaml
 version: 1
-router: 10.0.29.102
+router: <assigned-router-ip>
 method: restconf
 action: plan
 desired:
   interface:
-    name: Loopback66070123
-    ipv4: 172.23.123.2/32
-    description: IPA2026-66070123
+    name: Loopback<student-id>
+    ipv4: <unused-ipv4>/32
+    description: IPA2026-<student-id>
     admin_state: up
 ```
 
@@ -209,15 +209,15 @@ desired:
   "result": "planned",
   "operation": "create",
   "changes": {
-    "ipv4": {"to": "172.23.123.2/32"},
-    "description": {"to": "IPA2026-66070123"},
+    "ipv4": {"to": "<unused-ipv4>/32"},
+    "description": {"to": "IPA2026-<student-id>"},
     "admin_state": {"to": "up"}
   }
 }
 ```
 **ควรเปลี่ยน IP ให้ไม่ซ้ำกับที่มีอยู่แล้วบน Router และห้ามใช้ IP ที่สงวนไว้สำหรับการทดสอบที่กำหนดในด้านล่างของเอกสารนี้**
 
-**อ่านผล `plan`:** `name: Loopback66070123` ใน YAML ใช้ระบุ interface เป้าหมาย จึงไม่ใส่ `name` หรือ `interface` ใน `changes` ค่า `changes` แสดงเฉพาะ `ipv4`, `description` และ `admin_state` ที่ต้องจัดการ กรณี `create` จะแสดงค่า `to` ของทั้งสามรายการ; กรณี `update` จะแสดงเฉพาะค่าที่ต่าง; ถ้าค่าตรงกันทั้งหมดจะได้ `operation: no_change` และ `changes: {}`
+**อ่านผล `plan`:** `name: Loopback<student-id>` ใน YAML ใช้ระบุ interface เป้าหมาย จึงไม่ใส่ `name` หรือ `interface` ใน `changes` ค่า `changes` แสดงเฉพาะ `ipv4`, `description` และ `admin_state` ที่ต้องจัดการ กรณี `create` จะแสดงค่า `to` ของทั้งสามรายการ; กรณี `update` จะแสดงเฉพาะค่าที่ต่าง; ถ้าค่าตรงกันทั้งหมดจะได้ `operation: no_change` และ `changes: {}`
 
 **หลังส่ง:** Interface **ยังไม่มี** `restconf` ใช้กับ `plan` ได้ แต่ `plan` เพียงบอกว่าจะทำอะไร ไม่เปลี่ยน router `planned` + `create` หมายถึง interface ชื่อนี้ยังไม่มี; `plan` ไม่ตรวจว่า IP ใน YAML ถูกใช้โดย interface อื่นแล้วหรือไม่ จึงยังยืนยันไม่ได้ว่า `apply` จะสำเร็จ
 
@@ -229,14 +229,14 @@ desired:
 
 ```yaml
 version: 1
-router: 10.0.29.102
+router: <assigned-router-ip>
 method: restconf
 action: apply
 desired:
   interface:
-    name: Loopback66070123
-    ipv4: 172.23.123.2/32
-    description: IPA2026-66070123
+    name: Loopback<student-id>
+    ipv4: <unused-ipv4>/32
+    description: IPA2026-<student-id>
     admin_state: up
 ```
 
@@ -268,12 +268,12 @@ desired:
 
 ```yaml
 version: 1
-router: 10.0.29.102
+router: <assigned-router-ip>
 method: restconf
 action: status
 desired:
   interface:
-    name: Loopback66070123
+    name: Loopback<student-id>
 ```
 
 **ไฟล์สำหรับลองส่ง:** [06-status-found.yaml](sample-tests/webex-manual/06-status-found.yaml)
@@ -285,9 +285,9 @@ desired:
   "status": "ok",
   "result": "found",
   "interface": {
-    "name": "Loopback66070123",
-    "ipv4": "172.23.123.2/32",
-    "description": "IPA2026-66070123",
+    "name": "Loopback<student-id>",
+    "ipv4": "<unused-ipv4>/32",
+    "description": "IPA2026-<student-id>",
     "admin_state": "up"
   }
 }
@@ -303,14 +303,14 @@ desired:
 
 ```yaml
 version: 1
-router: 10.0.29.102
+router: <assigned-router-ip>
 method: restconf
 action: plan
 desired:
   interface:
-    name: Loopback66070123
-    ipv4: 172.23.123.2/32
-    description: IPA2026-66070123
+    name: Loopback<student-id>
+    ipv4: <unused-ipv4>/32
+    description: IPA2026-<student-id>
     admin_state: up
 ```
 
@@ -332,12 +332,12 @@ desired:
 
 ```yaml
 version: 1
-router: 10.0.29.102
+router: <assigned-router-ip>
 method: restconf
 action: delete
 desired:
   interface:
-    name: Loopback66070123
+    name: Loopback<student-id>
 ```
 
 **ไฟล์สำหรับลองส่ง:** [08-invalid-action.yaml](sample-tests/webex-manual/08-invalid-action.yaml)
@@ -352,18 +352,18 @@ desired:
 
 ### 9. `delete`: ลบ interface ที่สร้างไว้
 
-**ก่อนส่ง:** `Loopback66070123` ยังอยู่บน router
+**ก่อนส่ง:** `Loopback<student-id>` ยังอยู่บน router
 
 **ส่ง:**
 
 ```yaml
 version: 1
-router: 10.0.29.102
+router: <assigned-router-ip>
 method: netmiko-textfsm
 action: delete
 desired:
   interface:
-    name: Loopback66070123
+    name: Loopback<student-id>
 ```
 
 **ไฟล์สำหรับลองส่ง:** [09-delete.yaml](sample-tests/webex-manual/09-delete.yaml)
@@ -384,12 +384,12 @@ desired:
 
 ```yaml
 version: 1
-router: 10.0.29.102
+router: <assigned-router-ip>
 method: netmiko-textfsm
 action: delete
 desired:
   interface:
-    name: Loopback66070123
+    name: Loopback<student-id>
 ```
 
 **ไฟล์สำหรับลองส่ง:** [10-delete-again.yaml](sample-tests/webex-manual/10-delete-again.yaml)
@@ -573,7 +573,7 @@ Commit: 0123456789abcdef0123456789abcdef01234567
 MCQ: 10 คะแนน ตรวจและเก็บนอกระบบนี้
 งานล่าสุด: เข้าคิว
 ลำดับคิว CI: 1/1
-ก่อน Live ระบบจะลบ Loopback66070123 บน 10.0.29.101 เพื่อเริ่มตรวจจากสถานะว่าง
+ก่อน Live ระบบจะลบ Loopback<student-id> บน 10.0.29.101 เพื่อเริ่มตรวจจากสถานะว่าง
 จะแจ้งคะแนนอีกครั้งเมื่อตรวจเสร็จ
 ```
 

@@ -1,7 +1,7 @@
 version: 1
-router: 10.0.29.102
+router: <assigned-router-ip>
 method: netmiko-textfsm
 action: delete
 desired:
   interface:
-    name: Loopback66070123
+    name: Loopback<student-id>

@@ -1,10 +1,10 @@
 version: 1
-router: 10.0.29.102
+router: <assigned-router-ip>
 method: restconf
 action: plan
 desired:
   interface:
-    name: Loopback66070123
-    ipv4: 172.23.123.2/32
-    description: IPA2026-66070123
+    name: Loopback<student-id>
+    ipv4: <unused-ipv4>/32
+    description: IPA2026-<student-id>
     admin_state: up
